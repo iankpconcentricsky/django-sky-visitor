@@ -20,7 +20,7 @@ import os
 import sys
 
 name = 'django-sky-visitor'
-package = ''
+package = 'sky_visitor'
 description = 'Extension to the django authentication/user system.'
 url = 'http://github.com/concentricsky/django-sky-visitor/'
 author = 'Concentric Sky'
@@ -40,14 +40,11 @@ classifiers = [
 try:
     longdesc = open('README.md').read()
 except Exception:
-    longdesc = ('Breakdown is a lightweight python webserver that parses '
-                'jinja2 templates. It\'s intended to be used by designers '
-                'in rapid prototyping.')
+    longdesc = description
 
-
-def get_version(package):
+def get_version():
     """
-    Return package version as listed in `__version__` in `init.py`.
+    Return package version as listed in `sky_visitor.__version__` in `init.py`.
     """
     import sky_visitor
     return '.'.join([str(i) for i in sky_visitor.__version__])
@@ -89,15 +86,19 @@ if sys.argv[-1] == 'publish':
 
 setup(
     name=name,
-    version=get_version(package),
+    version=get_version(),
     url=url,
     license=license,
+    longdesc=longdesc,
     description=description,
     author=author,
     author_email=author_email,
+    classifiers=classifiers,
+
     packages=get_packages(package),
     package_data=get_package_data(package),
     install_requires=install_requires,
-    classifiers=classifiers,
-    longdesc=longdesc,
 )
+
+
+
