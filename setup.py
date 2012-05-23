@@ -81,7 +81,7 @@ setup(
     version=get_version(),
     url=url,
     license=license,
-    longdesc=longdesc,
+    long_description=longdesc,
     description=description,
     author=author,
     author_email=author_email,
