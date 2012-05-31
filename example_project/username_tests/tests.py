@@ -7,6 +7,16 @@ from django.contrib.auth.models import User as AuthUser
 
 TestUsernameForgotPasswordProcess = TestForgotPasswordProcess
 
+# TODO
+# test subclasses of ExtendedUser
+#   -correct user (sub)class was registered
+#   -fields from user subclass shown
+#
+# test admin:
+#   -shows username, password(, email?) fields
+#   -password rules checked when changing password
+
+# -password rules checked when registering
 
 class TestUsernameLoginForm(TestLoginFormBase):
 

@@ -6,6 +6,17 @@ from sky_visitor.utils import SubclassedUser
 
 TestEmailForgotPasswordProcess = TestForgotPasswordProcess
 
+# TODO
+# test subclasses of EmailExtendedUser
+#   -correct user (sub)class was registered
+#   -fields from user subclass shown
+#
+# test admin:
+#   -doesn't show username field
+#   -does show password, email fields
+#   -password rules checked when changing password
+
+# -password rules checked when registering
 
 class TestEmailRegister(TestRegister):
 
