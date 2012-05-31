@@ -13,10 +13,8 @@
 # limitations under the License.
 
 from django import forms
-from django.conf import settings
 from django.contrib.auth import forms as auth_forms, authenticate
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth.models import User as AuthUser
 from sky_visitor.utils import SubclassedUser as User
 from sky_visitor.fields import UniqueRequiredEmailField, PasswordRulesField
 
@@ -77,44 +75,25 @@ class EmailRegisterForm(forms.ModelForm):
         return user
 
 
-class UserCreateAdminForm(forms.ModelForm):
-    # TODO: Make email and non-email version
+class UserCreateAdminForm(auth_forms.UserCreationForm):
     password1 = PasswordRulesField(label=_("Password"))
-    username = None
-    # TODO: Need a way to have a username-based option and an email-based option
-
-    def __init__(self, *args, **kwargs):
-        super(UserCreateAdminForm, self).__init__(*args, **kwargs)
-
-    email = UniqueRequiredEmailField()
-    password1 = PasswordRulesField(label=_("Password"))
-    password2 = forms.CharField(label=_("Password confirmation"), widget=forms.PasswordInput,
-                                help_text=_("Enter the same password as above, for verification."))
 
     class Meta:
         model = User
-        fields = ['email']
-        exclude = ['username']
 
-    def clean_password2(self):
-        password1 = self.cleaned_data.get("password1", "")
-        password2 = self.cleaned_data["password2"]
-        if password1 != password2:
-            raise forms.ValidationError(_("The two password fields didn't match."))
-        return password2
-
-    def save(self, commit=True):
-        user = super(UserCreateAdminForm, self).save(commit=False)
-        user.set_password(self.cleaned_data["password1"])
-        if commit:
-            user.save()
-        return user
-
+class EmailUserCreateAdminForm(UserCreateAdminForm):
+    def __init__(self, *args, **kwargs):
+        super(EmailUserCreateAdminForm, self).__init__(*args, **kwargs)
+        del self.fields['username']
 
 class UserChangeAdminForm(auth_forms.UserChangeForm):
-    email = UniqueRequiredEmailField()
-    # TODO: Need a way to have a username-based option and an email-based option
+    class Meta:
+        model = User
 
+class EmailUserChangeAdminForm(UserChangeAdminForm):
+    def __init__(self, *args, **kwargs):
+        super(EmailUserChangeAdminForm, self).__init__(*args, **kwargs)
+        del self.fields['username']
 
 # TODO: Inheriting from this form creates a auth.User instead of a subclassed User. Fix that.
 class RegisterForm(auth_forms.UserCreationForm):

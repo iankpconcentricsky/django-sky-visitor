@@ -11,17 +11,20 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from django.contrib.admin.sites import NotRegistered
 
 from django.contrib.auth import models as auth_models
 from django.contrib.auth import admin as auth_admin
 from django.contrib import admin
-from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
-from sky_visitor.forms import UserChangeAdminForm, UserCreateAdminForm
+from sky_visitor.forms import EmailUserChangeAdminForm, EmailUserCreateAdminForm
 from sky_visitor.utils import SubclassedUser as User
 
 # Unregister the default User model to avoid confusion
-admin.site.unregister(auth_models.User)
+try:
+    admin.site.unregister(auth_models.User)
+except NotRegistered:
+    pass
 
 
 class EmailUserAdmin(auth_admin.UserAdmin):
@@ -43,8 +46,8 @@ class EmailUserAdmin(auth_admin.UserAdmin):
     search_fields = ('first_name', 'last_name', 'email')
     ordering = ('email',)
 
-    form = UserChangeAdminForm
-    add_form = UserCreateAdminForm
+    form = EmailUserChangeAdminForm
+    add_form = EmailUserCreateAdminForm
 #    change_password_form = AdminPasswordChangeForm
 
 admin.site.register(User, EmailUserAdmin)
