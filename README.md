@@ -82,21 +82,46 @@ Must specify `SECRET_KEY` in your settings for any emails with tokens to be secu
 
 
 # Admin
-By default, we remove the admin screens for `auth.User` and place in an auth screen for you authentication
+By default, we remove the admin screens for `auth.User` and place in an admin screen for SKY_VISITOR_USER_MODEL.
 
 If you want to re-add the the django contrib user, you can do that by re-registering django.contrib.auth.User
 
-If you want fine-grained control over the admin you can subclass the sky_visitor `UserAdmin`:
+If you want fine-grained control over the admin you can subclass the sky_visitor `UserAdmin`. Commonly, you will want to do this if you have subclassed ExtendedUser or EmailExtendedUser and you want your custom fields available in the admin. You can add fields in __init__, or just redefine the fieldsets and/or add_fieldsets attributes:
 
 ```python
 from sky_visitor.admin import UserAdmin
 
 class MyUserAdmin(UserAdmin):
-   # Your code here
-   pass
 
+    #completely redefine fieldsets for the add form
+    add_fieldsets = (
+        (None, {'fields': ('email', 'oauth_provider'), 'classes': ('skinny',)}),
+    )
+
+    #update the change form fieldsets
+    def __init__(self, *args, **kwargs):
+        super(UserAdmin, self).__init__(*args, **kwargs)
+
+        #add a field to an existing fieldset
+        for name, data in self.fieldsets:
+            fields = data['fields']
+            if 'password' in fields:
+                fields_copy = [f for f in fields]
+                fields_copy.append('password_hint')
+                data['fields'] = tuple(fields_copy)
+
+        #add a new fieldset
+        fieldset_copy = [f for f in self.fieldsets]
+        to_add = (_('Favorites'), {'fields': ('color', 'book', 'album')})
+        fieldset_copy.append(to_add)
+        self.fieldsets = tuple(fieldset_copy)
+
+   # ...
+
+admin.site.unregister(MyUser)
 admin.site.register(MyUser, MyUserAdmin)
 ```
+Note: Be sure to re-register your model with your new admin class.
 
 
 # Testing
