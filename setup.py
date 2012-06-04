@@ -14,13 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from setuptools import setup
+from setuptools import setup, find_packages
 import re
 import os
 import sys
 
 name = 'django-sky-visitor'
-package = ''
+package = 'sky_visitor'
 description = 'Extension to the django authentication/user system.'
 url = 'http://github.com/concentricsky/django-sky-visitor/'
 author = 'Concentric Sky'
@@ -40,43 +40,33 @@ classifiers = [
 try:
     longdesc = open('README.md').read()
 except Exception:
-    longdesc = ('Breakdown is a lightweight python webserver that parses '
-                'jinja2 templates. It\'s intended to be used by designers '
-                'in rapid prototyping.')
+    longdesc = description
 
-
-def get_version(package):
+def get_version():
     """
-    Return package version as listed in `__version__` in `init.py`.
+    Return package version as listed in `sky_visitor.__version__` in `init.py`.
     """
     import sky_visitor
     return '.'.join([str(i) for i in sky_visitor.__version__])
 
 
-def get_packages(package):
-    """
-    Return root package and all sub-packages.
-    """
-    return [dirpath
-            for dirpath, dirnames, filenames in os.walk(package)
-            if os.path.exists(os.path.join(dirpath, '__init__.py'))]
-
-
-def get_package_data(package):
+def get_package_data(packages):
     """
     Return all files under the root package, that are not in a
     package themselves.
     """
-    walk = [(dirpath.replace(package + os.sep, '', 1), filenames)
-            for dirpath, dirnames, filenames in os.walk(package)
-            if not os.path.exists(os.path.join(dirpath, '__init__.py'))]
+    result = {}
+    for package in packages:
+        walk = [(dirpath.replace(package + os.sep, '', 1), filenames)
+                for dirpath, dirnames, filenames in os.walk(package)
+                if not os.path.exists(os.path.join(dirpath, '__init__.py'))]
 
-    filepaths = []
-    for base, filenames in walk:
-        filepaths.extend([os.path.join(base, filename)
-                          for filename in filenames])
-    return {package: filepaths}
-
+        filepaths = []
+        for base, filenames in walk:
+            filepaths.extend([os.path.join(base, filename)
+                              for filename in filenames])
+        result[package]=filepaths
+    return result
 
 if sys.argv[-1] == 'publish':
     os.system("python setup.py sdist upload")
@@ -86,18 +76,19 @@ if sys.argv[-1] == 'publish':
     print "  git push --tags"
     sys.exit()
 
-
 setup(
     name=name,
-    version=get_version(package),
+    version=get_version(),
     url=url,
     license=license,
+    long_description=longdesc,
     description=description,
     author=author,
     author_email=author_email,
-    packages=get_packages(package),
-    package_data=get_package_data(package),
+    packages=find_packages(),
+    package_data=get_package_data(['example_project', 'sky_visitor']),
     install_requires=install_requires,
-    classifiers=classifiers,
-    longdesc=longdesc,
 )
+
+
+
