@@ -187,6 +187,3 @@ Built at [Concentric Sky](http://www.concentricsky.com/) by [Jeremy Blanchard](h
 
 This project is licensed under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0). Copyright 2012 Concentric Sky, Inc.
 
-
-[discussion]:
-
