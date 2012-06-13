@@ -28,6 +28,7 @@ except NotRegistered:
 
 
 class EmailUserAdmin(auth_admin.UserAdmin):
+    add_form_template = 'sky_visitor/email_add_form.html'
 
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
