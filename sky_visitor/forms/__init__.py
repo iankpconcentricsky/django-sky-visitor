@@ -14,9 +14,12 @@
 
 from django import forms
 from django.contrib.auth import forms as auth_forms, authenticate
+from django.contrib.auth.models import User as AuthUser
+from django.forms.fields import EmailField
+from django.forms.util import ErrorList
 from django.utils.translation import ugettext_lazy as _
 from sky_visitor.utils import SubclassedUser as User
-from sky_visitor.forms.fields import UniqueRequiredEmailField, PasswordRulesField
+from sky_visitor.forms.fields import PasswordRulesField
 
 
 class NameRequiredMixin(object):
@@ -25,6 +28,39 @@ class NameRequiredMixin(object):
         if 'first_name' in self.fields and 'last_name' in self.fields:
             self.fields['first_name'].required = True
             self.fields['last_name'].required = True
+
+class UniqueEmailFormMixin(object):
+    """
+    When using this mixin, be sure to specify 'email' in your Form's Meta.fields.
+
+    Support for adding this email field automatically to that list
+    is unfinished, and commented out below.
+    """
+    nonunique_error = _("This email address is already in use. Please enter a different email address.")
+
+    email = EmailField()
+
+    # The following snippet adds the email field to the Form, but we still need to ensure this
+    # works in all cases and does the whole job.  Not yet sure if we need to do anything special
+    # for field label, whether this initial data is sufficient, etc.
+    # Until we have some time to work through all the cases, just add 'email' to the
+    # superclass's Meta.fields.
+#    def __init__(self, *args, **kwargs):
+#        super(UniqueEmailFormMixin, self).__init__(*args, **kwargs)
+#        self.fields['email'] = self.email
+#        if self.instance:
+#            self.initial['email'] = self.instance.email
+
+    def clean(self):
+        email = self.cleaned_data.get('email')
+        matching = AuthUser.objects.filter(email=email)
+        if self.instance and self.instance.pk:
+            matching = matching.exclude(pk=self.instance.pk)
+        if matching:
+            if 'email' not in self._errors:
+                self._errors['email'] = ErrorList()
+            self._errors['email'].append(self.nonunique_error)
+        return super(UniqueEmailFormMixin, self).clean()
 
 
 class RegisterBasicForm(auth_forms.UserCreationForm):
@@ -45,11 +81,10 @@ class RegisterForm(RegisterBasicForm):
         fields = ['username', 'email']
 
 
-class EmailRegisterForm(forms.ModelForm):
+class EmailRegisterForm(UniqueEmailFormMixin, forms.ModelForm):
     error_messages = {
         'password_mismatch': _("The two password fields didn't match."),
     }
-    email = UniqueRequiredEmailField()
     password1 = PasswordRulesField(label=_("Password"))
     password2 = forms.CharField(label=_("Password confirmation"),
                                 widget=forms.PasswordInput,
@@ -96,18 +131,16 @@ class EmailUserChangeAdminForm(UserChangeAdminForm):
         del self.fields['username']
 
 # TODO: Inheriting from this form creates a auth.User instead of a subclassed User. Fix that.
-class RegisterForm(auth_forms.UserCreationForm):
-    # TODO: Make email and non-email version
-    email = UniqueRequiredEmailField()
+class RegisterForm(UniqueEmailFormMixin, auth_forms.UserCreationForm):
+    # TODO: Make email and non-email version -- this is for email
 
     class Meta:
         model = User
         fields = ['username', 'email']
 
 
-class InvitationForm(forms.ModelForm):
-    # TODO: Make email and non-email version
-    email = UniqueRequiredEmailField()
+class InvitationForm(UniqueEmailFormMixin, forms.ModelForm):
+    # TODO: Make email and non-email version -- this is for email
 
     class Meta:
         model = User
@@ -148,9 +181,8 @@ class PasswordChangeForm(SetPasswordForm):
 PasswordChangeForm.base_fields.keyOrder = ['old_password', 'new_password1', 'new_password2']
 
 
-class InvitationCompleteForm(forms.ModelForm):
-    # TODO: Make email and non-email version
-    email = UniqueRequiredEmailField()
+class InvitationCompleteForm(UniqueEmailFormMixin, forms.ModelForm):
+    # TODO: Make email and non-email version -- this is for email
 
     class Meta:
         model = User
