@@ -18,7 +18,6 @@ from django.contrib.auth.models import User as AuthUser
 from django.utils.unittest.case import skipUnless
 from sky_visitor import utils
 from sky_visitor.utils import SubclassedUser as User
-from sky_visitor.forms import UniqueRequiredEmailField
 
 subclassed_user_only_test = skipUnless(utils.is_subclassed_user(), "Only test these if configured in an sky_visitor subclassed user mode")
 username_user_only_test = skipUnless(utils.is_username_user(), "Only test these if configured in username-based user mode")
