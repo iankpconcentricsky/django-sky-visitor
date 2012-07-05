@@ -129,7 +129,7 @@ Note: Be sure to re-register your model with your new admin class.
 Tests are broken into three separate apps running under three different "modes":
 
   1. "auth user" mode (default)
-    * Uses `example_project/settings.py`
+    * Uses `authuser_tests/settings.py`
     * Uses `django.contrib.auth.models.User` as the user model
     * Contains most of the tests
   2. "email user" mode
@@ -144,7 +144,7 @@ A test runner is configured in each settings.py to run only the tests that are a
 
 You can run the tests like so:
 
-    cd example_project
+    cd authuser_tests
     # "auth user" tests
     ./manage.py test
     # "email user" tests
