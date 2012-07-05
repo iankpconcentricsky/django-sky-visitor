@@ -1,4 +1,4 @@
-from example_project.settings import *
+from authuser_tests.settings import *
 
 ###
 #

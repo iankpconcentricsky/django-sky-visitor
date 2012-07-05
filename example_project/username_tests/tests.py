@@ -1,4 +1,4 @@
-from example_project.tests import TestRegister, FIXTURE_USER_DATA, TestForgotPasswordProcess, TestLoginFormBase
+from authuser_tests.tests import TestRegister, FIXTURE_USER_DATA, TestForgotPasswordProcess, TestLoginFormBase
 from sky_visitor.forms import LoginForm, RegisterForm
 from django.test import TestCase
 from sky_visitor.utils import SubclassedUser

@@ -1,5 +1,3 @@
-# Django settings for example_project project.
-
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
@@ -13,7 +11,7 @@ TEMPLATE_DEBUG = DEBUG
 LOGIN_REDIRECT_URL = '/'
 
 INSTALLED_APPS = [
-    'example_project',
+    'authuser_tests',
     'sky_visitor',
 
     'django.contrib.auth',
@@ -27,9 +25,9 @@ INSTALLED_APPS = [
 
 TESTS_TO_RUN = [
     'sky_visitor',
-    'example_project.TestRegister',
-    'example_project.TestAuthUserLoginForm',
-    'example_project.TestForgotPasswordProcess',
+    'authuser_tests.TestRegister',
+    'authuser_tests.TestAuthUserLoginForm',
+    'authuser_tests.TestForgotPasswordProcess',
 ]
 
 
@@ -42,7 +40,7 @@ import os.path
 PROJECT_DIR = os.path.dirname(os.path.dirname(__file__))
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-TEST_RUNNER = 'example_project.runners.DefaultTestRunner'
+TEST_RUNNER = 'authuser_tests.runners.DefaultTestRunner'
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
@@ -138,10 +136,10 @@ MIDDLEWARE_CLASSES = (
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'example_project.urls'
+ROOT_URLCONF = 'authuser_tests.urls'
 
 # Python dotted path to the WSGI application used by Django's runserver.
-WSGI_APPLICATION = 'example_project.wsgi.application'
+WSGI_APPLICATION = 'authuser_tests.wsgi.application'
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
