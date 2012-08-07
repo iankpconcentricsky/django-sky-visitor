@@ -272,7 +272,7 @@ class InvitationCompleteView(TokenValidateMixin, UpdateView):
 
 
 class LogoutView(RedirectView):
-    success_message = "Successfully logged out."
+    success_message = _("Successfully logged out.")
 
     def get(self, request, *args, **kwargs):
         logout(request)
@@ -310,6 +310,7 @@ class ForgotPasswordChangeView(TokenValidateMixin, FormView):
     template_name = 'sky_visitor/forgot_password_change.html'
     invalid_token_message = _("Invalid reset password link. Please reset your password again.")
     auto_login_on_success = True
+    success_message = _("Succesfully reset password.")
 
     def get_form_kwargs(self):
         kwargs = super(ForgotPasswordChangeView, self).get_form_kwargs()
@@ -325,6 +326,7 @@ class ForgotPasswordChangeView(TokenValidateMixin, FormView):
     def form_valid(self, form):
         if self.is_token_valid:
             form.save()
+            messages.success(self.request, self.success_message, fail_silently=True)
             auto_login(self.request, self.get_user_from_token())
         return super(ForgotPasswordChangeView, self).form_valid(form)
 
