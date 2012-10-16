@@ -1,6 +1,6 @@
 A full featured authentication and user system that extends the default Django contib.auth pacakge.
 
-**Note:** Version 0.8.2. This library is under active development. While in active development, the API will be changing frequently.
+**Note:** Version 0.8.3. This library is under active development. While in active development, the API will be changing frequently.
 
 
 # Features
