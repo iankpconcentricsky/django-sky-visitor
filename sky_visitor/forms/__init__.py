@@ -234,7 +234,10 @@ class EmailLoginForm(BaseLoginForm):
     email = forms.CharField(label=_("Email"), max_length=75)
     password = forms.CharField(label=_("Password"), widget=forms.PasswordInput)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, request=None, *args, **kwargs):
+        """
+        request is a paramater that goes unused because we need to use this form with the admin login process, and AuthenticationForm expects this argument.
+        """
         self.error_messages['invalid_login'] = _("Please enter a correct email and password. Note that both fields are case-sensitive.")
         super(EmailLoginForm, self).__init__(*args, **kwargs)
 
