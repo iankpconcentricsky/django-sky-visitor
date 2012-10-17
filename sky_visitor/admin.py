@@ -23,22 +23,22 @@ from sky_visitor.utils import SubclassedUser as User
 class EmailUserAdmin(auth_admin.UserAdmin):
     add_form_template = 'sky_visitor/email_add_form.html'
 
-    fieldsets = (
+    fieldsets = [
         (None, {'fields': ('email', 'password')}),
         (_('Personal info'), {'fields': ('first_name', 'last_name')}),
         (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser', 'user_permissions')}),
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
         (_('Groups'), {'fields': ('groups',)}),
-    )
+    ]
     add_fieldsets = (
-        (None, {
+        [None, {
             'classes': ('wide',),
             'fields': ('email', 'password1', 'password2')}
-        ),
+        ],
     )
-    list_display = ('email', 'first_name', 'last_name', 'is_staff')
-    search_fields = ('first_name', 'last_name', 'email')
-    ordering = ('email',)
+    list_display = ['email', 'first_name', 'last_name', 'is_staff']
+    search_fields = ['first_name', 'last_name', 'email']
+    ordering = ['email',]
 
     form = EmailUserChangeAdminForm
     add_form = EmailUserCreateAdminForm
