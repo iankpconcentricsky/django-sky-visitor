@@ -20,13 +20,6 @@ from django.utils.translation import ugettext_lazy as _
 from sky_visitor.forms import EmailUserChangeAdminForm, EmailUserCreateAdminForm
 from sky_visitor.utils import SubclassedUser as User
 
-# Unregister the default User model to avoid confusion
-try:
-    admin.site.unregister(auth_models.User)
-except NotRegistered:
-    pass
-
-
 class EmailUserAdmin(auth_admin.UserAdmin):
     add_form_template = 'sky_visitor/email_add_form.html'
 
@@ -50,5 +43,3 @@ class EmailUserAdmin(auth_admin.UserAdmin):
     form = EmailUserChangeAdminForm
     add_form = EmailUserCreateAdminForm
 #    change_password_form = AdminPasswordChangeForm
-
-admin.site.register(User, EmailUserAdmin)
