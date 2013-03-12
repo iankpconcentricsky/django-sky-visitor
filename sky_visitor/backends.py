@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from django.contrib.auth import login
+from django.contrib.auth import login, backends
 
 
 # Reference: http://groups.google.com/group/django-users/browse_thread/thread/39488db1864c595f
@@ -22,3 +22,7 @@ def auto_login(request, user):
     """
     user.backend = 'sky_visitor.backends.BaseBackend'
     login(request, user)
+
+
+class BaseBackend(backends.ModelBackend):
+    pass

@@ -15,14 +15,18 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth import forms as auth_forms, authenticate, get_user_model
 
 
-class RegisterForm(auth_forms.UserCreationForm):
-
-    class Meta:
-        model = get_user_model()
-        fields = [get_user_model().USERNAME_FIELD]
+class BaseRegisterForm(auth_forms.UserCreationForm):
 
     def __init__(self, *args, **kwargs):
-        super(RegisterForm, self).__init__(*args, **kwargs)
+        super(BaseRegisterForm, self).__init__(*args, **kwargs)
         UserModel = get_user_model()
         if UserModel.USERNAME_FIELD != 'username':
             del self.fields['username']
+
+
+def register_form_factory():
+    class RegisterForm(BaseRegisterForm):
+        class Meta(BaseRegisterForm.Meta):
+            model = get_user_model()
+            fields = [get_user_model().USERNAME_FIELD] + get_user_model().REQUIRED_FIELDS
+    return RegisterForm

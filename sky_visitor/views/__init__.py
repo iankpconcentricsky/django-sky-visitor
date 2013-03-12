@@ -18,7 +18,7 @@ from django.contrib import messages
 from django.views.generic import CreateView
 from django.utils.translation import ugettext_lazy as _
 from sky_visitor.backends import auto_login
-from sky_visitor.forms import RegisterForm
+from sky_visitor.forms import register_form_factory
 
 
 class RegisterView(CreateView):
@@ -26,7 +26,9 @@ class RegisterView(CreateView):
     template_name = 'sky_visitor/register.html'
     success_message = _("Successfully registered and logged in")
     login_on_success = True
-    form_class = RegisterForm
+
+    def get_form_class(self):
+        return register_form_factory()
 
     def form_valid(self, form):
         response = super(RegisterView, self).form_valid(form)

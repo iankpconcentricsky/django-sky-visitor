@@ -12,4 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from sky_visitor.tests.views import *
+from django.test import TestCase
+
+
+class SkyVisitorTestCase(TestCase):
+    pass

@@ -10,26 +10,6 @@ TEMPLATE_DEBUG = DEBUG
 
 LOGIN_REDIRECT_URL = '/'
 
-INSTALLED_APPS = [
-    'authuser_tests',
-    'sky_visitor',
-
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.sites',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'django.contrib.admin',
-]
-
-TESTS_TO_RUN = [
-    'sky_visitor',
-    'authuser_tests.TestRegister',
-    'authuser_tests.TestAuthUserLoginForm',
-    'authuser_tests.TestForgotPasswordProcess',
-]
-
 
 ###
 #
@@ -40,21 +20,13 @@ import os.path
 PROJECT_DIR = os.path.dirname(os.path.dirname(__file__))
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-TEST_RUNNER = 'authuser_tests.runners.DefaultTestRunner'
+# TEST_RUNNER = 'authuser_tests.runners.DefaultTestRunner'
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
 )
 
 MANAGERS = ADMINS
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'db.sqlite3',
-    }
-}
-
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
@@ -200,7 +172,7 @@ LOGGING = {
 #
 ###
 
-AUTH_USER_MODEL='auth.CustomUser'
+AUTH_USER_MODEL = 'auth.CustomUser'
 
 # AUTHENTICATION_BACKENDS = [
 #     'sky_visitor.backends.EmailBackend',
