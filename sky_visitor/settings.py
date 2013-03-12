@@ -12,22 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""
-Default settings. See __init__.py for code that injects these defaults
-"""
-
-# Defaults to auth.User in case you don't want to take advantage of user subclassing features of this app
-SKY_VISITOR_USER_MODEL = 'django.contrib.auth.User'
-
-# This must be set to the python path (not including .models) of your primary subclass of User.
-# Also, sky_visitor.models.User will always contain this class as a shortcut
-#SKY_VISITOR_USER_MODEL = None
-
-# This setting is used only if your user model inherits from ExtendedUser rather than EmailExtendedUser. If you use ExtendedUser directly,
-# and this settings is true, then the default forms will show email forms intead of login forms.
-# TODO: Implement this
-#SKY_VISITOR_EMAIL_LOGIN = False
-
 
 app_default_settings = vars()
 
