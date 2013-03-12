@@ -11,18 +11,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth import forms as auth_forms, authenticate, get_user_model
+
+from django.test import TestCase
+from django.test.utils import override_settings
 
 
-class RegisterForm(auth_forms.UserCreationForm):
+class SkyVisitorTestCase(TestCase):
+    pass
 
-    class Meta:
-        model = get_user_model()
-        fields = [get_user_model().USERNAME_FIELD]
 
-    def __init__(self, *args, **kwargs):
-        super(RegisterForm, self).__init__(*args, **kwargs)
-        UserModel = get_user_model()
-        if UserModel.USERNAME_FIELD != 'username':
-            del self.fields['username']
+class CustomUserRegisterViewTest(SkyVisitorTestCase):
+    pass

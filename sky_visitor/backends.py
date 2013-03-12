@@ -12,10 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from django.contrib.auth import backends, login
-from django.core.exceptions import ImproperlyConfigured
-from django.core.validators import email_re
-from sky_visitor.utils import SubclassedUser as User
+from django.contrib.auth import login
 
 
 # Reference: http://groups.google.com/group/django-users/browse_thread/thread/39488db1864c595f
