@@ -1,5 +1,15 @@
 <html>
 <body>
+
+    {% if messages %}
+        <h2>Messages:</h2>
+        <ul>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    
     {% block content %}{% endblock %}
 </body>
 </html>
