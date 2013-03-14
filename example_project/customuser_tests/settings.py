@@ -22,11 +22,6 @@ from normal_tests.settings import *
 
 AUTH_USER_MODEL = 'auth.CustomUser'
 
-# AUTHENTICATION_BACKENDS = [
-#     'sky_visitor.backends.EmailBackend',
-# ]
-
-
 INSTALLED_APPS = [
     'customuser_tests',
     'sky_visitor',
@@ -38,6 +33,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.admin',
+]
+
+TESTS_TO_RUN = [
+    'sky_visitor',
+    'customuser_tests.CustomUserRegisterViewTest',
 ]
 
 DATABASES = {

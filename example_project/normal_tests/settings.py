@@ -38,6 +38,11 @@ INSTALLED_APPS = [
     'django.contrib.admin',
 ]
 
+TESTS_TO_RUN = [
+    'sky_visitor',
+    'normal_tests.RegisterViewTest',
+]
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -55,7 +60,7 @@ import os.path
 PROJECT_DIR = os.path.dirname(os.path.dirname(__file__))
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-# TEST_RUNNER = 'authuser_tests.runners.DefaultTestRunner'
+TEST_RUNNER = 'normal_tests.runners.DefaultTestRunner'
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
