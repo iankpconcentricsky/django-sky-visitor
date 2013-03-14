@@ -20,7 +20,7 @@ TOKEN_REGEX = '(?P<uidb36>[0-9A-Za-z]{1,13})-(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Z
 
 urlpatterns = patterns('',
     url(r'^register/$', RegisterView.as_view(), name='register'),
-    # url(r'^login/$', LoginView.as_view(), name='login'),
+    url(r'^login/$', LoginView.as_view(), name='login'),
     # url(r'^logout/$', LogoutView.as_view(), name='logout'),
 #     url(r'invitation/%s/$' % TOKEN_REGEX, InvitationCompleteView.as_view(),   name='invitation_complete'),
 #     url(r'invitation/done/$',   InvitationDoneView.as_view(),   name='invitation_done'),

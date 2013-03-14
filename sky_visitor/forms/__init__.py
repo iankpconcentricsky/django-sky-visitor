@@ -25,3 +25,7 @@ class RegisterForm(auth_forms.UserCreationForm):
         UserModel = get_user_model()
         if UserModel.USERNAME_FIELD != 'username':
             del self.fields['username']
+
+
+class LoginForm(auth_forms.AuthenticationForm):
+    pass
