@@ -16,4 +16,12 @@ from django.test import TestCase
 
 
 class SkyVisitorTestCase(TestCase):
-    pass
+
+    def assertLoggedIn(self, user, backend=None):
+        self.assertEqual(self.client.session['_auth_user_id'], user.id)
+        if backend:
+            self.assertEqual(self.client.session['_auth_user_backend'], backend)
+
+    def assertRedirected(self, response, expected_url, status_code=302):
+        self.assertEqual(response.status_code, status_code)
+        self.assertEqual(response._headers['location'][1], 'http://testserver%s' % expected_url)

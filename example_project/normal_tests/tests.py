@@ -13,7 +13,15 @@
 # limitations under the License.
 
 from django.contrib.auth import get_user_model
-from sky_visitor.tests.base import SkyVisitorTestCase
+from sky_visitor.forms import LoginForm
+from sky_visitor.tests import SkyVisitorTestCase
+
+
+FIXTURE_USER_DATA = {
+    'username': 'testuser',
+    'email': 'testuser@example.com',
+    'password': 'adminadmin'
+}
 
 
 class SkyVisitorViewsTestCase(SkyVisitorTestCase):
@@ -59,3 +67,32 @@ class RegisterViewTest(SkyVisitorViewsTestCase):
         # Form should have errors for mismatched password
         self.assertEqual(len(form.errors), 1)
         self.assertIn('password2', form.errors)
+
+
+class LoginViewTest(SkyVisitorViewsTestCase):
+    view_url = '/user/login/'
+
+    def test_login_form_should_exist(self):
+        response = self.client.get(self.view_url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_login_form_should_succeed(self):
+        UserModel = get_user_model()
+        data = {
+            UserModel.USERNAME_FIELD: FIXTURE_USER_DATA[UserModel.USERNAME_FIELD],
+            'password': FIXTURE_USER_DATA['password'],
+        }
+        response = self.client.post(self.view_url, data)
+        # Should redirect
+        self.assertRedirected(response, '/')
+
+        # Should be logged in
+        user = UserModel._default_manager.get(**{UserModel.USERNAME_FIELD: FIXTURE_USER_DATA[UserModel.USERNAME_FIELD]})
+        self.assertLoggedIn(user, backend='django.contrib.auth.backends.ModelBackend')
+
+    def test_should_have_username_field(self):
+        response = self.client.get(self.view_url)
+        self.assertEqual(response.status_code, 200)
+        form = response.context_data['form']
+        UserModel = get_user_model()
+        self.assertIn(UserModel.USERNAME_FIELD, form.fields)
