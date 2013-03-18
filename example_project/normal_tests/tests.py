@@ -11,8 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from django.conf import settings
 
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, SESSION_KEY
 from django.utils.text import capfirst
 from sky_visitor.forms import LoginForm
 from sky_visitor.tests import SkyVisitorTestCase
@@ -29,6 +30,16 @@ class SkyVisitorViewsTestCase(SkyVisitorTestCase):
 
     def setUp(self):
         super(SkyVisitorViewsTestCase, self).setUp()
+
+    def login(self, password=FIXTURE_USER_DATA['password']):
+        UserModel = get_user_model()
+        response = self.client.post('/user/login/', {
+            'username': FIXTURE_USER_DATA[UserModel.USERNAME_FIELD],
+            'password': password,
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response['Location'].endswith(settings.LOGIN_REDIRECT_URL))
+        self.assertTrue(SESSION_KEY in self.client.session)
 
 
 class RegisterViewTest(SkyVisitorViewsTestCase):
@@ -99,3 +110,27 @@ class LoginViewTest(SkyVisitorViewsTestCase):
         UserModel = get_user_model()
         username_field = UserModel._meta.get_field(UserModel.USERNAME_FIELD)
         self.assertEqual(form.fields['username'].label, capfirst(username_field.verbose_name))
+
+
+class LogoutViewTest(SkyVisitorViewsTestCase):
+
+    def confirm_logged_out(self):
+        self.assertTrue(SESSION_KEY not in self.client.session)
+
+    def test_logout_default(self):
+        self.login()
+
+        response = self.client.get('/user/logout/')
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response['Location'].endswith('/user/login/'))
+
+        self.confirm_logged_out()
+
+    def test_logout_with_overridden_redirect_url(self):
+        self.login()
+
+        response = self.client.get('/user/logout/?next=/user/register/')
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response['Location'].endswith('/user/register/'))
+
+        self.confirm_logged_out()

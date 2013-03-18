@@ -16,13 +16,14 @@ import urlparse
 from django.contrib import auth
 from django.conf import settings
 from django.contrib import messages
+from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import resolve_url
 from django.utils.decorators import method_decorator
 from django.utils.http import is_safe_url
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
-from django.views.generic import CreateView, FormView
+from django.views.generic import CreateView, FormView, RedirectView
 from django.utils.translation import ugettext_lazy as _
 from sky_visitor.backends import auto_login
 from sky_visitor.forms import RegisterForm, LoginForm
@@ -124,3 +125,35 @@ class LoginView(FormView):
         else:
             self.set_test_cookie()
             return self.form_invalid(form)
+
+
+class LogoutView(RedirectView):
+    permanent = False
+    redirect_field_name = auth.REDIRECT_FIELD_NAME
+    redirect_url_overrides_redirect_field = False
+    success_message = _("Successfully logged out.")
+
+    def get(self, request, *args, **kwargs):
+        auth.logout(request)
+        messages.success(request, self.success_message, fail_silently=True)
+        return super(LogoutView, self).get(request, *args, **kwargs)
+
+    def get_redirect_url(self, **kwargs):
+        """
+        Order of priority:
+        * self.success URL (if success_url_overrides_redirect_field is an override)
+        * a "next" paramater specified in the logout URL
+        * the login URL
+        """
+        if self.redirect_url_overrides_redirect_field:
+            return super(self, LoginView).get_redirect_url(self, **kwargs)
+
+        redirect_to = reverse('login')
+
+        if self.redirect_field_name in self.request.REQUEST:
+            redirect_to = self.request.REQUEST[self.redirect_field_name]
+            # Security check -- don't allow redirection to a different host.
+            if not is_safe_url(url=redirect_to, host=self.request.get_host()):
+                redirect_to = self.request.path
+
+        return redirect_to
