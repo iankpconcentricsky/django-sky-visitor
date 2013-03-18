@@ -14,6 +14,11 @@
 from django.conf import settings
 
 from django.contrib.auth import get_user_model, SESSION_KEY
+from django.contrib.auth.forms import SetPasswordForm
+from django.contrib.auth.tokens import default_token_generator
+from django.core import mail
+from django.core.urlresolvers import reverse
+from django.utils.http import int_to_base36
 from django.utils.text import capfirst
 from sky_visitor.forms import LoginForm
 from sky_visitor.tests import SkyVisitorTestCase
@@ -28,8 +33,12 @@ FIXTURE_USER_DATA = {
 
 class SkyVisitorViewsTestCase(SkyVisitorTestCase):
 
-    def setUp(self):
-        super(SkyVisitorViewsTestCase, self).setUp()
+    @property
+    def default_user(self):
+        UserModel = get_user_model()
+        if not hasattr(self, '_default_user'):
+            self._default_user = UserModel._default_manager.get(email=FIXTURE_USER_DATA['email'])
+        return self._default_user
 
     def login(self, password=FIXTURE_USER_DATA['password']):
         UserModel = get_user_model()
@@ -133,3 +142,74 @@ class LogoutViewTest(SkyVisitorViewsTestCase):
         response = self.client.get('/customlogout/')
         self.assertRedirected(response, '/user/register/')
         self.confirm_logged_out()
+
+
+class ForgotPasswordProcessTest(SkyVisitorViewsTestCase):
+
+    # TODO TEST: Token older than X weeks (will require removing hard coded reset URL)
+
+    def _get_password_reset_url(self, user=None, with_host=True):
+        if user is None:
+            user = self.default_user
+        url = reverse('forgot_password_change', kwargs={'uidb36': int_to_base36(user.id), 'token': default_token_generator.make_token(user)})
+        if  with_host:
+            url = 'http://testserver%s' % url
+        return url
+
+    def test_forgot_password_form_should_send_email(self):
+        response = self.client.get('/user/forgot_password/')
+        self.assertEqual(response.status_code, 200)
+
+        data = {'email': FIXTURE_USER_DATA['email']}
+        response = self.client.post('/user/forgot_password/', data, follow=True)
+        # Should redirect to the check email page
+        self.assertRedirects(response, '/user/forgot_password/check_email/')
+        # Should send the message
+        self.assertEqual(len(mail.outbox), 1)
+        message = mail.outbox[0]
+        # Should be sent to the right person
+        self.assertIn(data['email'], message.to)
+        # Should have the correct subject
+        self.assertEqual(message.subject, 'Password reset for testserver')
+        # Should have the link in the body of the message
+        self.assertIn(self._get_password_reset_url(), message.body)
+        # Link in email should work and land you on a set password form
+        response2 = self.client.get(self._get_password_reset_url())
+        self.assertIsInstance(response2.context_data['form'], SetPasswordForm)
+
+    def test_reset_password_form_should_success_with_valid_input(self):
+        UserModel = get_user_model()
+        response = self.client.get(self._get_password_reset_url())
+        # Should succeed and have the appropraite form on the page
+        self.assertEqual(response.status_code, 200)
+        self.assertIsInstance(response.context_data['form'], SetPasswordForm)
+
+        new_pass = 'asdfasdf'
+        data = {
+            'new_password1': new_pass,
+            'new_password2': new_pass,
+        }
+        response = self.client.post(self._get_password_reset_url(), data)
+        user = UserModel._default_manager.get(email=FIXTURE_USER_DATA['email'])
+        # Should redirect to '/' (LOGIN_REDIRECT_URL)
+        self.assertRedirected(response, '/')
+        # Should have a new password
+        self.assertTrue(user.check_password(new_pass))
+        # Should automatically log the user in
+        self.assertLoggedIn(user, backend='sky_visitor.backends.BaseBackend')
+
+        # Now log the user out and make sure that reset link doesn't work anymore
+        self.client.logout()
+        response2 = self.client.get(self._get_password_reset_url(), follow=True)
+        self.assertRedirects(response2, '/user/login/')
+
+    def test_reset_password_form_should_fail_with_invalid_token(self):
+        # Should work fine for normal URL
+        response = self.client.get(self._get_password_reset_url())
+        self.assertEqual(response.status_code, 200)
+        # User ID of this token is modified
+        response = self.client.get('http://testserver/user/forgot_password/2-35t-d4e092280eb134000672/', follow=True)
+        self.assertRedirects(response, '/user/login/')
+        # Token modified
+        response = self.client.get('http://testserver/user/forgot_password/1-35t-d4e092280eb134000671/', follow=True)
+        self.assertRedirects(response, '/user/login/')

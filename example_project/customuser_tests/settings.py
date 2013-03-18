@@ -40,6 +40,7 @@ TESTS_TO_RUN = [
     'customuser_tests.RegisterViewTest',
     'customuser_tests.LoginViewTest',
     'customuser_tests.LogoutViewTest',
+    'customuser_tests.ForgotPasswordProcessTest',
 ]
 
 DATABASES = {

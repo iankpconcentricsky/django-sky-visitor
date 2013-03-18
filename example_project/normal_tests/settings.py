@@ -22,6 +22,7 @@ TEMPLATE_DEBUG = DEBUG
 #
 ###
 
+LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = '/'
 
 
@@ -43,6 +44,7 @@ TESTS_TO_RUN = [
     'normal_tests.RegisterViewTest',
     'normal_tests.LoginViewTest',
     'normal_tests.LogoutViewTest',
+    'normal_tests.ForgotPasswordProcessTest',
 ]
 
 DATABASES = {

@@ -16,8 +16,8 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.tokens import default_token_generator
-from django.core.urlresolvers import resolve
 from django.http import HttpResponseRedirect
+from django.shortcuts import resolve_url
 from django.utils.decorators import method_decorator
 from django.utils.http import base36_to_int
 from sky_visitor.emails import TokenTemplateEmail
@@ -70,7 +70,7 @@ class TokenValidateMixin(object):
     def token_invalid(self, request, *args, **kwargs):
         if self.display_message_on_invalid_token:
             messages.error(request, self.invalid_token_message, fail_silently=True)
-        return HttpResponseRedirect(resolve(settings.LOGIN_URL))
+        return HttpResponseRedirect(resolve_url(settings.LOGIN_URL))
 
     def get_user_from_token(self):
         return self._user

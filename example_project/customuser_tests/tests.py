@@ -55,3 +55,7 @@ class LoginViewTest(normaltests.LoginViewTest):
 
 class LogoutViewTest(normaltests.LogoutViewTest):
     pass
+
+
+class ForgotPasswordProcessTest(normaltests.ForgotPasswordProcessTest):
+    pass

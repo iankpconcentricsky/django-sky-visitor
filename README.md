@@ -26,6 +26,7 @@ your users in this way, make sure you follow the message framework docs to enabl
 # Settings
 Must specify `SECRET_KEY` in your settings for any emails with tokens to be secure (example: invitation, confirm email address, forgot password, etc)
 
+You must at least set `LOGIN_URL` to `"login"`. You can optionally another valid URL or URL name of your own. Certain views in Sky Visitor depend on an accurate value for this setting and the default value in Django core (`"/authentication/login/"`) is likely invalid unless you have created it.
 
 # Testing
 
