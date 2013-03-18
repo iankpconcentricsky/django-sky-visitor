@@ -53,5 +53,5 @@ class LoginViewTest(normaltests.LoginViewTest):
     pass
 
 
-class LogoutViewTest(normaltests.LoginViewTest):
+class LogoutViewTest(normaltests.LogoutViewTest):
     pass

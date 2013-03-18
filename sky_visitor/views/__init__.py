@@ -146,7 +146,7 @@ class LogoutView(RedirectView):
         * the login URL
         """
         if self.redirect_url_overrides_redirect_field:
-            return super(self, LoginView).get_redirect_url(self, **kwargs)
+            return super(LogoutView, self).get_redirect_url(**kwargs)
 
         redirect_to = reverse('login')
 

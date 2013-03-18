@@ -1,9 +1,10 @@
 from django.conf.urls import patterns, include, url
+from django.views.generic.base import TemplateView
+from normal_tests.views import CustomLogoutView
 
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
 # admin.autodiscover()
-from django.views.generic.base import TemplateView
 
 urlpatterns = patterns('',
     # Examples:
@@ -17,6 +18,7 @@ urlpatterns = patterns('',
     # url(r'^admin/', include(admin.site.urls)),
 
     url(r'^user/', include('sky_visitor.urls')),
+    url(r'^customlogout', CustomLogoutView.as_view(), name='custom_logout'),
 
     url(r'^$', TemplateView.as_view(template_name='home.html'), name='home'),
 )
