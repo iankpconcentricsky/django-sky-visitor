@@ -16,7 +16,7 @@ import urlparse
 from django.contrib import auth
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
+from django.contrib.auth.forms import SetPasswordForm
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import resolve_url
@@ -27,8 +27,8 @@ from django.views.decorators.csrf import csrf_protect
 from django.views.generic import CreateView, FormView, RedirectView, TemplateView
 from django.utils.translation import ugettext_lazy as _
 from sky_visitor.backends import auto_login
-from sky_visitor.forms import RegisterForm, LoginForm
-from views.mixins import SendTokenEmailMixin, TokenValidateMixin
+from sky_visitor.forms import RegisterForm, LoginForm, PasswordResetForm
+from sky_visitor.views.mixins import SendTokenEmailMixin, TokenValidateMixin
 
 
 class RegisterView(CreateView):

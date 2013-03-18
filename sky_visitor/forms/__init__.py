@@ -30,3 +30,12 @@ class RegisterForm(auth_forms.UserCreationForm):
 class LoginForm(auth_forms.AuthenticationForm):
     # Note: The username field will always be called 'username' despite what UserModel.USERNAME_FIELD is
     pass
+
+
+class PasswordResetForm(auth_forms.PasswordResetForm):
+    def save(self, *args, **kwargs):
+        """
+        Override standard forgot password email sending. Sending now occurs in the view.
+        """
+        return
+    
