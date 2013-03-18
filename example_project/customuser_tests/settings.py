@@ -37,8 +37,9 @@ INSTALLED_APPS = [
 
 TESTS_TO_RUN = [
     'sky_visitor',
-    'customuser_tests.CustomUserRegisterViewTest',
-    'customuser_tests.CustomUserLoginViewTest',
+    'customuser_tests.RegisterViewTest',
+    'customuser_tests.LoginViewTest',
+    'customuser_tests.LogoutViewTest',
 ]
 
 DATABASES = {

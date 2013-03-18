@@ -13,10 +13,10 @@
 # limitations under the License.
 
 from django.contrib.auth import get_user_model
-from normal_tests.tests import RegisterViewTest, LoginViewTest
+from normal_tests import tests as normaltests
 
 
-class CustomUserRegisterViewTest(RegisterViewTest):
+class RegisterViewTest(normaltests.RegisterViewTest):
 
     def get_test_data(self):
         data = {
@@ -49,5 +49,9 @@ class CustomUserRegisterViewTest(RegisterViewTest):
         self.assertEqual(UserModel._default_manager.filter(**{UserModel.USERNAME_FIELD: testuser_email}).count(), 1)
 
 
-class CustomUserLoginViewTest(LoginViewTest):
+class LoginViewTest(normaltests.LoginViewTest):
+    pass
+
+
+class LogoutViewTest(normaltests.LoginViewTest):
     pass

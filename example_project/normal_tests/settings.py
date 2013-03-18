@@ -42,6 +42,7 @@ TESTS_TO_RUN = [
     'sky_visitor',
     'normal_tests.RegisterViewTest',
     'normal_tests.LoginViewTest',
+    'normal_tests.LogoutViewTest',
 ]
 
 DATABASES = {
