@@ -16,6 +16,7 @@ import urlparse
 from django.contrib import auth
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import resolve_url
@@ -23,10 +24,11 @@ from django.utils.decorators import method_decorator
 from django.utils.http import is_safe_url
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
-from django.views.generic import CreateView, FormView, RedirectView
+from django.views.generic import CreateView, FormView, RedirectView, TemplateView
 from django.utils.translation import ugettext_lazy as _
 from sky_visitor.backends import auto_login
 from sky_visitor.forms import RegisterForm, LoginForm
+from views.mixins import SendTokenEmailMixin, TokenValidateMixin
 
 
 class RegisterView(CreateView):
@@ -157,3 +159,59 @@ class LogoutView(RedirectView):
                 redirect_to = self.request.path
 
         return redirect_to
+
+
+class ForgotPasswordView(SendTokenEmailMixin, FormView):
+    form_class = PasswordResetForm
+    template_name = 'sky_visitor/forgot_password_start.html'
+
+    def form_valid(self, form):
+        user = form.users_cache[0]
+        self.send_email(user)
+        return super(ForgotPasswordView, self).form_valid(form)  # Do redirect
+
+    def get_email_kwargs(self, user):
+        kwargs = super(ForgotPasswordView, self).get_email_kwargs(user)
+        domain = self.request.get_host()
+        kwargs['email_template_name'] = 'sky_visitor/forgot_password_email.html'
+        kwargs['token_view_name'] = 'forgot_password_change'
+        kwargs['domain'] = domain
+        kwargs['subject'] = "Password reset for %s" % domain
+        return kwargs
+
+    def get_success_url(self):
+        return reverse('forgot_password_check_email')
+
+
+class ForgotPasswordCheckEmailView(TemplateView):
+    template_name = 'sky_visitor/forgot_password_check_email.html'
+
+
+class ForgotPasswordChangeView(TokenValidateMixin, FormView):
+    form_class = SetPasswordForm
+    template_name = 'sky_visitor/forgot_password_change.html'
+    invalid_token_message = _("Invalid reset password link. Please reset your password again.")
+    auto_login_on_success = True
+    success_message = _("Succesfully reset password.")
+
+    def get_form_kwargs(self):
+        kwargs = super(ForgotPasswordChangeView, self).get_form_kwargs()
+        kwargs['user'] = self.get_user_from_token()  # Form expects this
+        return kwargs
+
+    def get_form(self, form_class):
+        if self.is_token_valid:
+            return super(ForgotPasswordChangeView, self).get_form(form_class)
+        else:
+            return None
+
+    def form_valid(self, form):
+        if self.is_token_valid:
+            form.save()
+            messages.success(self.request, self.success_message, fail_silently=True)
+            auto_login(self.request, self.get_user_from_token())
+        return super(ForgotPasswordChangeView, self).form_valid(form)
+
+    def get_success_url(self):
+        if not self.success_url:
+            return resolve_url(settings.LOGIN_REDIRECT_URL)
