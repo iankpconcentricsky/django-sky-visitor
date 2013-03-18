@@ -37,8 +37,7 @@ class SkyVisitorViewsTestCase(SkyVisitorTestCase):
             'username': FIXTURE_USER_DATA[UserModel.USERNAME_FIELD],
             'password': password,
         })
-        self.assertEqual(response.status_code, 302)
-        self.assertTrue(response['Location'].endswith(settings.LOGIN_REDIRECT_URL))
+        self.assertRedirected(response, settings.LOGIN_REDIRECT_URL)
         self.assertTrue(SESSION_KEY in self.client.session)
 
 
@@ -119,27 +118,18 @@ class LogoutViewTest(SkyVisitorViewsTestCase):
 
     def test_logout_default(self):
         self.login()
-
         response = self.client.get('/user/logout/')
-        self.assertEqual(response.status_code, 302)
-        self.assertTrue(response['Location'].endswith('/user/login/'))
-
+        self.assertRedirected(response, '/user/login/')
         self.confirm_logged_out()
 
     def test_logout_with_overridden_redirect_url(self):
         self.login()
-
         response = self.client.get('/user/logout/?next=/user/register/')
-        self.assertEqual(response.status_code, 302)
-        self.assertTrue(response['Location'].endswith('/user/register/'))
-
+        self.assertRedirected(response, '/user/register/')
         self.confirm_logged_out()
 
     def test_redirect_view_override_url(self):
         self.login()
-
         response = self.client.get('/customlogout/')
-        self.assertEqual(response.status_code, 302)
-        self.assertTrue(response['Location'].endswith('/user/register/'))
-
+        self.assertRedirected(response, '/user/register/')
         self.confirm_logged_out()

@@ -18,7 +18,8 @@ urlpatterns = patterns('',
     # url(r'^admin/', include(admin.site.urls)),
 
     url(r'^user/', include('sky_visitor.urls')),
-    url(r'^customlogout', CustomLogoutView.as_view(), name='custom_logout'),
 
+    # For testing
+    url(r'^customlogout', CustomLogoutView.as_view(), name='custom_logout'),
     url(r'^$', TemplateView.as_view(template_name='home.html'), name='home'),
 )
