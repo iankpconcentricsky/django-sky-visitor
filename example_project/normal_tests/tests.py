@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from django.contrib.auth import get_user_model
+from django.utils.text import capfirst
 from sky_visitor.forms import LoginForm
 from sky_visitor.tests import SkyVisitorTestCase
 
@@ -79,7 +80,8 @@ class LoginViewTest(SkyVisitorViewsTestCase):
     def test_login_form_should_succeed(self):
         UserModel = get_user_model()
         data = {
-            UserModel.USERNAME_FIELD: FIXTURE_USER_DATA[UserModel.USERNAME_FIELD],
+            # Always use username as the field name because that's how contrib.auth.forms.AuthenticationForm is built
+            'username': FIXTURE_USER_DATA[UserModel.USERNAME_FIELD],
             'password': FIXTURE_USER_DATA['password'],
         }
         response = self.client.post(self.view_url, data)
@@ -95,4 +97,5 @@ class LoginViewTest(SkyVisitorViewsTestCase):
         self.assertEqual(response.status_code, 200)
         form = response.context_data['form']
         UserModel = get_user_model()
-        self.assertIn(UserModel.USERNAME_FIELD, form.fields)
+        username_field = UserModel._meta.get_field(UserModel.USERNAME_FIELD)
+        self.assertEqual(form.fields['username'].label, capfirst(username_field.verbose_name))

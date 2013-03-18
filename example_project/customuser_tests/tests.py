@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from django.contrib.auth import get_user_model
-from normal_tests.tests import RegisterViewTest
+from normal_tests.tests import RegisterViewTest, LoginViewTest
 
 
 class CustomUserRegisterViewTest(RegisterViewTest):
@@ -47,3 +47,7 @@ class CustomUserRegisterViewTest(RegisterViewTest):
 
         # Test user should only be in the database one time
         self.assertEqual(UserModel._default_manager.filter(**{UserModel.USERNAME_FIELD: testuser_email}).count(), 1)
+
+
+class CustomUserLoginViewTest(LoginViewTest):
+    pass
