@@ -12,13 +12,15 @@
     {% endif %}
 
     {% if messages %}
-        <h2>Messages:</h2>
+        <strong>Messages:</strong>
         <ul>
             {% for message in messages %}
                 <li>{{ message }}</li>
             {% endfor %}
         </ul>
     {% endif %}
+
+    <hr>
     
     {% block content %}{% endblock %}
 </body>
