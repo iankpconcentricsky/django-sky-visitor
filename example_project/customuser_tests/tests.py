@@ -59,3 +59,7 @@ class LogoutViewTest(normaltests.LogoutViewTest):
 
 class ForgotPasswordProcessTest(normaltests.ForgotPasswordProcessTest):
     pass
+
+
+class ChangePasswordViewTest(normaltests.ChangePasswordViewTest):
+    pass

@@ -232,4 +232,8 @@ class ChangePasswordView(LoginRequiredMixin, FormView):
         return super(ChangePasswordView, self).form_valid(form)
 
     def get_success_url(self):
-        return
+        if not self.success_url:
+            # If the user hasn't specific a path or overriddene this method, then return back to the change password form
+            return self.request.path
+        else:
+            return super(ChangePasswordView, self).get_success_url()

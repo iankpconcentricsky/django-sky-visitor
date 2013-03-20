@@ -213,3 +213,50 @@ class ForgotPasswordProcessTest(SkyVisitorViewsTestCase):
         # Token modified
         response = self.client.get('http://testserver/user/forgot_password/1-35t-d4e092280eb134000671/', follow=True)
         self.assertRedirects(response, '/user/login/')
+
+
+class ChangePasswordViewTest(SkyVisitorViewsTestCase):
+    view_url = '/user/change_password/'
+
+    def test_view_should_exist(self):
+        self.login()
+        response = self.client.get(self.view_url)
+        self.assertEqual(response.status_code, 200)
+        form = response.context_data['form']
+        self.assertIn('old_password', form.fields)
+
+    def test_change_password(self):
+        self.login()
+        newpass = 'newnewnew'
+        data = {
+            'old_password': FIXTURE_USER_DATA['password'],
+            'new_password1': newpass,
+            'new_password2': newpass,
+        }
+        response = self.client.post(self.view_url, data, follow=True)
+        form = response.context_data['form']
+        self.assertRedirects(response, self.view_url)
+
+    def test_bad_old_password_failed(self):
+        self.login()
+        newpass = 'newnewnew'
+        data = {
+            'old_password': 'badoldpass',
+            'new_password1': newpass,
+            'new_password2': newpass,
+        }
+        response = self.client.post(self.view_url, data, follow=True)
+        form = response.context_data['form']
+        self.assertEqual(len(form.errors), 1)
+
+    def test_mismatched_passwords_fail(self):
+        self.login()
+        newpass = 'newnewnew'
+        data = {
+            'old_password': FIXTURE_USER_DATA['password'],
+            'new_password1': newpass,
+            'new_password2': 'mismatch',
+        }
+        response = self.client.post(self.view_url, data, follow=True)
+        form = response.context_data['form']
+        self.assertEqual(len(form.errors), 1)
