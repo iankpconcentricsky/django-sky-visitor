@@ -4,6 +4,12 @@
     <p>
         Current user: {{ user }}
     </p>
+    {% if user.is_authenticated %}
+        <p>
+            <a href="{% url "change_password" %}">Change Password</a>,
+{#            <a href="{% url "edit_profile" %}">Edit Profile</a>#}
+        </p>
+    {% endif %}
 
     {% if messages %}
         <h2>Messages:</h2>

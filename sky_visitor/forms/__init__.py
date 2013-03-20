@@ -13,6 +13,7 @@
 # limitations under the License.
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth import forms as auth_forms, authenticate, get_user_model
+from forms.fields import PasswordRulesField
 
 
 class RegisterForm(auth_forms.UserCreationForm):
@@ -38,4 +39,11 @@ class PasswordResetForm(auth_forms.PasswordResetForm):
         Override standard forgot password email sending. Sending now occurs in the view.
         """
         return
-    
+
+
+class SetPasswordForm(auth_forms.SetPasswordForm):
+    new_password1 = PasswordRulesField(label=_("New password"))
+
+
+class PasswordChangeForm(auth_forms.PasswordChangeForm):
+    new_password1 = PasswordRulesField(label=_("New password"))

@@ -24,6 +24,7 @@ urlpatterns = patterns('',
     url(r'^forgot_password/$', ForgotPasswordView.as_view(), name='forgot_password'),
     url(r'^forgot_password/check_email/$', ForgotPasswordCheckEmailView.as_view(), name='forgot_password_check_email'),
     url(r'^forgot_password/%s/$' % TOKEN_REGEX, ForgotPasswordChangeView.as_view(), name='forgot_password_change'),
+    url(r'^change_password/$', ChangePasswordView.as_view(), name='change_password'),
 #     url(r'invitation/%s/$' % TOKEN_REGEX, InvitationCompleteView.as_view(),   name='invitation_complete'),
 #     url(r'invitation/done/$',   InvitationDoneView.as_view(),   name='invitation_done'),
 )

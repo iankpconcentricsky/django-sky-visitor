@@ -16,7 +16,6 @@ import urlparse
 from django.contrib import auth
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.forms import SetPasswordForm
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import resolve_url
@@ -24,11 +23,11 @@ from django.utils.decorators import method_decorator
 from django.utils.http import is_safe_url
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
-from django.views.generic import CreateView, FormView, RedirectView, TemplateView
+from django.views.generic import CreateView, FormView, RedirectView, TemplateView, UpdateView
 from django.utils.translation import ugettext_lazy as _
 from sky_visitor.backends import auto_login
-from sky_visitor.forms import RegisterForm, LoginForm, PasswordResetForm
-from sky_visitor.views.mixins import SendTokenEmailMixin, TokenValidateMixin
+from sky_visitor.forms import RegisterForm, LoginForm, PasswordResetForm, SetPasswordForm, PasswordChangeForm
+from sky_visitor.views.mixins import SendTokenEmailMixin, TokenValidateMixin, LoginRequiredMixin
 
 
 class RegisterView(CreateView):
@@ -215,3 +214,22 @@ class ForgotPasswordChangeView(TokenValidateMixin, FormView):
     def get_success_url(self):
         if not self.success_url:
             return resolve_url(settings.LOGIN_REDIRECT_URL)
+
+
+class ChangePasswordView(LoginRequiredMixin, FormView):
+    form_class = PasswordChangeForm
+    success_message = _("Succesfully changed password.")
+    template_name = 'sky_visitor/change_password.html'
+
+    def get_form_kwargs(self):
+        kwargs = super(ChangePasswordView, self).get_form_kwargs()
+        kwargs['user'] = self.request.user  # Form expects this
+        return kwargs
+
+    def form_valid(self, form):
+        form.save()
+        messages.success(self.request, self.success_message, fail_silently=True)
+        return super(ChangePasswordView, self).form_valid(form)
+
+    def get_success_url(self):
+        return

@@ -14,3 +14,25 @@
 
 from django import forms
 from django.forms import widgets
+
+
+class Html5EmailInput(widgets.Input):
+    input_type = 'email'
+
+
+class PasswordRulesField(forms.CharField):
+    DEFAULT_MIN_LENGTH = 8
+
+    # TODO: Add more validators. And move them to validators.py
+
+    def __init__(self, max_length=None, min_length=None, *args, **kwargs):
+        if not min_length:
+            min_length = self.DEFAULT_MIN_LENGTH
+        if not kwargs.get('widget', None):
+            kwargs['widget'] = forms.PasswordInput
+        super(PasswordRulesField, self).__init__(max_length, min_length, *args, **kwargs)
+
+    def clean(self, value):
+        if len(value) < self.min_length:
+            raise forms.ValidationError("Password must be at least %d characters long." % self.min_length)
+        return super(PasswordRulesField, self).clean(value)
