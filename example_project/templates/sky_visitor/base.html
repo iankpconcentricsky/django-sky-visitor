@@ -1,0 +1,27 @@
+<html>
+<body>
+
+    <p>
+        Current user: {{ user }}
+    </p>
+    {% if user.is_authenticated %}
+        <p>
+            <a href="{% url "change_password" %}">Change Password</a>,
+{#            <a href="{% url "edit_profile" %}">Edit Profile</a>#}
+        </p>
+    {% endif %}
+
+    {% if messages %}
+        <strong>Messages:</strong>
+        <ul>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <hr>
+
+    {% block content %}{% endblock %}
+</body>
+</html>
