@@ -33,6 +33,6 @@ class PasswordRulesField(forms.CharField):
         super(PasswordRulesField, self).__init__(max_length, min_length, *args, **kwargs)
 
     def clean(self, value):
-        if len(value) < self.min_length:
+        if value is None or len(value) < self.min_length:
             raise forms.ValidationError("Password must be at least %d characters long." % self.min_length)
         return super(PasswordRulesField, self).clean(value)
