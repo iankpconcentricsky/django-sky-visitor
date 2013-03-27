@@ -11,15 +11,20 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+from django import forms
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth import forms as auth_forms, authenticate, get_user_model
-from forms.fields import PasswordRulesField
+from django.contrib.auth import forms as auth_forms, get_user_model
+from sky_visitor.forms.fields import PasswordRulesField
+from sky_visitor.models import InvitedUser
 
 
 class RegisterForm(auth_forms.UserCreationForm):
-    class Meta():
-        model = get_user_model()
-        fields = [get_user_model().USERNAME_FIELD] + get_user_model().REQUIRED_FIELDS
+    class Meta:
+        UserModel = get_user_model()
+
+        model = UserModel
+        fields = [UserModel.USERNAME_FIELD] + UserModel.REQUIRED_FIELDS
 
     def __init__(self, *args, **kwargs):
         super(RegisterForm, self).__init__(*args, **kwargs)
@@ -47,3 +52,17 @@ class SetPasswordForm(auth_forms.SetPasswordForm):
 
 class PasswordChangeForm(auth_forms.PasswordChangeForm):
     new_password1 = PasswordRulesField(label=_("New password"))
+
+
+class InvitationForm(forms.ModelForm):
+    class Meta:
+        model = InvitedUser
+        fields = ['email']
+
+    def save(self, commit=True):
+        user = super(InvitationForm, self).save(commit=False)
+        # Make them unactivated
+        user.is_active = False
+        if commit:
+            user.save()
+        return user

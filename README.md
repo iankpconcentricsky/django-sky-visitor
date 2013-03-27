@@ -6,7 +6,7 @@ A full featured authentication and user system that extends the default Django c
 # Features
 
   * Class-based view implementations of all of the views
-  * Invitations
+  * Invitation emailed to users, where they can complete their registration
   * Password rules
 
 ## Advanced usage

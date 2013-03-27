@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 from django.conf.urls import *
 from sky_visitor.views import *
 
@@ -25,6 +24,7 @@ urlpatterns = patterns('',
     url(r'^forgot_password/check_email/$', ForgotPasswordCheckEmailView.as_view(), name='forgot_password_check_email'),
     url(r'^forgot_password/%s/$' % TOKEN_REGEX, ForgotPasswordChangeView.as_view(), name='forgot_password_change'),
     url(r'^change_password/$', ChangePasswordView.as_view(), name='change_password'),
-#     url(r'invitation/%s/$' % TOKEN_REGEX, InvitationCompleteView.as_view(),   name='invitation_complete'),
+    url(r'invitation/$', InvitationStartView.as_view(), name='invitation_start'),
+    url(r'invitation/%s/$' % TOKEN_REGEX, InvitationCompleteView.as_view(), name='invitation_complete'),
 #     url(r'invitation/done/$',   InvitationDoneView.as_view(),   name='invitation_done'),
 )
