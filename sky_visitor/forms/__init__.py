@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth import forms as auth_forms, get_user_model
@@ -60,7 +59,11 @@ class InvitationStartForm(forms.ModelForm):
         fields = ['email']
 
     def save(self, commit=True):
-        user = super(InvitationForm, self).save(commit=False)
+        user = super(InvitationStartForm, self).save(commit=False)
         if commit:
             user.save()
         return user
+
+
+class InvitationCompleteForm(RegisterForm):
+    pass

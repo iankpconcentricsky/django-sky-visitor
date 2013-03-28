@@ -21,27 +21,25 @@ from django.utils.decorators import method_decorator
 from django.utils.http import is_safe_url
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
-from django.views.generic import CreateView, FormView, RedirectView, TemplateView, UpdateView
+from django.views.generic import CreateView, FormView, RedirectView, TemplateView
 from django.utils.translation import ugettext_lazy as _
 from sky_visitor.models import InvitedUser
 from sky_visitor.backends import auto_login
-from sky_visitor.forms import RegisterForm, LoginForm, PasswordResetForm, SetPasswordForm, PasswordChangeForm, InvitationStartForm
+from sky_visitor.forms import RegisterForm, LoginForm, PasswordResetForm, SetPasswordForm, PasswordChangeForm, InvitationStartForm, InvitationCompleteForm
 from sky_visitor.views.mixins import SendTokenEmailMixin, TokenValidateMixin, LoginRequiredMixin
 
 
 class RegisterView(CreateView):
     model = auth.get_user_model()
+    form_class = RegisterForm
     template_name = 'sky_visitor/register.html'
     success_message = _("Successfully registered and logged in")
-    login_on_success = True
-
-    def get_form_class(self):
-        return RegisterForm
+    auto_login_on_success = True
 
     def form_valid(self, form):
         response = super(RegisterView, self).form_valid(form)
         user = self.object
-        if self.login_on_success:
+        if self.auto_login_on_success:
             auto_login(self.request, user)
         messages.success(self.request, self.success_message)
         return response
@@ -258,8 +256,7 @@ class InvitationStartMixin(SendTokenEmailMixin):
 
 
 class InvitationStartView(InvitationStartMixin, CreateView):
-    # model = InvitedUser
-    template_name = 'sky_visitor/invitation.html'
+    template_name = 'sky_visitor/invitation_start.html'
     success_message = _("Invitation successfully delivered.")
 
     def get_success_url(self):
@@ -267,59 +264,34 @@ class InvitationStartView(InvitationStartMixin, CreateView):
         return self.request.path
 
 
-class InvitationCompleteView(TokenValidateMixin, UpdateView):
-    # form_class = InvitationCompleteForm
-    form_class_set_password = SetPasswordForm
-    context_object_name = 'invited_user'
+class InvitationCompleteView(TokenValidateMixin, CreateView):
+    """
+    Invitations create an InviteUser. Once an invitation is completed, a standard user object is created.
+
+    If the token is invalid, `invalid_token_message` is displayed and the user is redirected to `get_invalid_token_redirect_url()`
+    """
+    model = auth.get_user_model()
+    form_class = InvitationCompleteForm
     auto_login_on_success = True
     template_name = 'sky_visitor/invitation_complete.html'
-    invalid_token_message = _("This one-time use invite URL has already been used. This means you have likely already created an account. Please try to login or use the forgot password form.")
+    invalid_token_message = _("This one-time use invitation URL has already been used. This means you have likely already created an account. Please try to login or use the forgot password form.")
+    success_message = _("Account successfully created.")
     # Since this is an UpdateView, the default success_url will be the user's get_absolute_url(). Override if you'd like different behavior
 
-    def get_object(self, queryset=None):
-        return self.get_user_from_token()
-
-    def post(self, request, *args, **kwargs):
-        if self.is_token_valid:
-            return super(InvitationCompleteView, self).post(request, *args, **kwargs)
-        else:
-            return self.get(request, *args, **kwargs)
+    def get_initial(self):
+        initial = super(InvitationCompleteView, self).get_initial()
+        initial['email'] = self.invited_user.email
+        return initial
 
     def form_valid(self, form):
-        context = self.get_context_data()
-        set_password_form = context['set_password_form']
-
-        if set_password_form.is_valid():
-            set_password_form.save(commit=True)
-        else:
-            return self._form_invalid(form, set_password_form)
-
-        form.instance.is_active = True
+        response = super(InvitationCompleteView, self).form_valid(form)  # Save and generate redirect
         if self.auto_login_on_success:
-            auto_login(self.request, form.instance)
-        return super(InvitationCompleteView, self).form_valid(form)  # Save and redirect
-
-    def form_invalid(self, form):
-        return self._form_invalid(form)
-
-    def _form_invalid(self, form, set_password_form=None):
-        return self.render_to_response(self.get_context_data(form=form, set_password_form=set_password_form))
-
-    def get_form(self, form_class):
-        if self.is_token_valid:
-            return super(InvitationCompleteView, self).get_form(form_class)
-        else:
-            return None
+            auto_login(self.request, self.object)
+        messages.success(self.request, self.success_message)
+        return response
 
     def get_context_data(self, **kwargs):
         context_data = super(InvitationCompleteView, self).get_context_data(**kwargs)
-        # TODO: Find a better way to mixin two forms in this view
-        if self.is_token_valid:
-            if 'set_password_form' not in context_data or context_data['set_password_form'] is None:
-                if self.request.POST:
-                    context_data['set_password_form'] = self.form_class_set_password(self.get_user_from_token(), self.request.POST, prefix='set_password')
-                else:
-                    context_data['set_password_form'] = self.form_class_set_password(self.get_user_from_token(), prefix='set_password')
-        else:
-            context_data['set_password_form'] = None
+        context_data['invited_user'] = self.invited_user
+        context_data['is_token_valid'] = self.is_token_valid
         return context_data

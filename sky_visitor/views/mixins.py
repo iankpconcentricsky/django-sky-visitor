@@ -13,13 +13,15 @@
 # limitations under the License.
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.tokens import default_token_generator
 from django.http import HttpResponseRedirect
 from django.shortcuts import resolve_url
 from django.utils.decorators import method_decorator
+from django.utils.functional import cached_property
 from django.utils.http import base36_to_int
+from django.utils.translation import ugettext_lazy as _
+from sky_visitor.models import InvitedUser
 from sky_visitor.emails import TokenTemplateEmail
 
 
@@ -43,26 +45,37 @@ class SendTokenEmailMixin(object):
 
 
 class TokenValidateMixin(object):
+    """
+    If the token is invalid, `invalid_token_message` is displayed and the user is redirected to `get_invalid_token_redirect_url()`
+    """
     token_generator = default_token_generator
     display_message_on_invalid_token = True
     is_token_valid = False
-    invalid_token_message = "This one-time use URL has already been used. Try to login or use the forgot password form."
+    invalid_token_message = _("This one-time use URL has already been used. Try to login or use the forgot password form.")
 
     def get_token_generator(self):
         return self.token_generator
 
+    def get_invited_user_model_class(self):
+        return InvitedUser
+
+    @cached_property
+    def invited_user(self):
+        uidb36 = self.kwargs.get('uidb36')
+        assert uidb36 is not None
+        InvitedUserModel = self.get_invited_user_model_class()
+        if not hasattr(self, '_invited_user'):
+            try:
+                uid_int = base36_to_int(uidb36)
+                self._invited_user = InvitedUserModel._default_manager.get(id=uid_int)
+            except (ValueError, OverflowError, InvitedUserModel.DoesNotExist):
+                self._invited_user = None
+        return self._invited_user
+
     def dispatch(self, request, *args, **kwargs):
-        UserModel = get_user_model()
-        uidb36 = kwargs['uidb36']
         token = kwargs['token']
-        assert uidb36 is not None and token is not None  # checked by URLconf
-        try:
-            uid_int = base36_to_int(uidb36)
-            # Get an AuthUser instance here since we don't need any of the extra aspects of the SubclassedUser
-            self._user = UserModel._default_manager.get(id=uid_int)
-        except (ValueError, OverflowError, UserModel.DoesNotExist):
-            self._user = None
-        self.is_token_valid = (self._user is not None and self.get_token_generator().check_token(self._user, token))
+        assert token is not None  # checked by URLconf
+        self.is_token_valid = (self.invited_user is not None and self.get_token_generator().check_token(self.invited_user, token))
         if not self.is_token_valid:
             return self.token_invalid(request, *args, **kwargs)
         return super(TokenValidateMixin, self).dispatch(request, *args, **kwargs)
@@ -70,7 +83,7 @@ class TokenValidateMixin(object):
     def token_invalid(self, request, *args, **kwargs):
         if self.display_message_on_invalid_token:
             messages.error(request, self.invalid_token_message, fail_silently=True)
-        return HttpResponseRedirect(resolve_url(settings.LOGIN_URL))
+        return HttpResponseRedirect(self.get_invalid_token_redirect_url())
 
-    def get_user_from_token(self):
-        return self._user
+    def get_invalid_token_redirect_url(self):
+        return resolve_url(settings.LOGIN_URL)

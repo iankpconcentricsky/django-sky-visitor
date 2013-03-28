@@ -11,9 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import datetime
 from django.conf import settings
 from django.db import models
-from django.utils import timezone
 
 
 class InvitedUser(models.Model):
@@ -33,7 +33,7 @@ class InvitedUser(models.Model):
         if self.created_user and hasattr('last_login', self.created_user):
             return self.created_user.last_login
         else:
-            return timezone.now()
+            return datetime.datetime(2013, 1, 1, 0, 0, 0)
 
     @property
     def password(self):
