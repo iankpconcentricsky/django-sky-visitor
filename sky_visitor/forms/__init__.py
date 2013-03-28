@@ -54,15 +54,13 @@ class PasswordChangeForm(auth_forms.PasswordChangeForm):
     new_password1 = PasswordRulesField(label=_("New password"))
 
 
-class InvitationForm(forms.ModelForm):
+class InvitationStartForm(forms.ModelForm):
     class Meta:
         model = InvitedUser
         fields = ['email']
 
     def save(self, commit=True):
         user = super(InvitationForm, self).save(commit=False)
-        # Make them unactivated
-        user.is_active = False
         if commit:
             user.save()
         return user

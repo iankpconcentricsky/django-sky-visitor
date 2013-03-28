@@ -25,7 +25,7 @@ from django.views.generic import CreateView, FormView, RedirectView, TemplateVie
 from django.utils.translation import ugettext_lazy as _
 from sky_visitor.models import InvitedUser
 from sky_visitor.backends import auto_login
-from sky_visitor.forms import RegisterForm, LoginForm, PasswordResetForm, SetPasswordForm, PasswordChangeForm, InvitationForm
+from sky_visitor.forms import RegisterForm, LoginForm, PasswordResetForm, SetPasswordForm, PasswordChangeForm, InvitationStartForm
 from sky_visitor.views.mixins import SendTokenEmailMixin, TokenValidateMixin, LoginRequiredMixin
 
 
@@ -238,11 +238,11 @@ class ChangePasswordView(LoginRequiredMixin, FormView):
             return super(ChangePasswordView, self).get_success_url()
 
 
-class InvitationMixin(SendTokenEmailMixin):
-    form_class = InvitationForm
+class InvitationStartMixin(SendTokenEmailMixin):
+    form_class = InvitationStartForm
 
     def form_valid(self, form):
-        redirect = super(InvitationMixin, self).form_valid(form)
+        redirect = super(InvitationStartMixin, self).form_valid(form)
         self.send_email(self.get_user_object())
         return redirect
 
@@ -257,10 +257,10 @@ class InvitationMixin(SendTokenEmailMixin):
         return self.object
 
 
-class InvitationStartView(InvitationMixin, CreateView):
+class InvitationStartView(InvitationStartMixin, CreateView):
     # model = InvitedUser
     template_name = 'sky_visitor/invitation.html'
-    success_message = _("Invitational successfully delivered.")
+    success_message = _("Invitation successfully delivered.")
 
     def get_success_url(self):
         messages.success(self.request, self.success_message, fail_silently=True)
@@ -272,7 +272,7 @@ class InvitationCompleteView(TokenValidateMixin, UpdateView):
     form_class_set_password = SetPasswordForm
     context_object_name = 'invited_user'
     auto_login_on_success = True
-    template_name = 'sky_visitor/invite_complete.html'
+    template_name = 'sky_visitor/invitation_complete.html'
     invalid_token_message = _("This one-time use invite URL has already been used. This means you have likely already created an account. Please try to login or use the forgot password form.")
     # Since this is an UpdateView, the default success_url will be the user's get_absolute_url(). Override if you'd like different behavior
 
