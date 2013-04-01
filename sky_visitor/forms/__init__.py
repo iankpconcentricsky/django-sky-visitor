@@ -88,10 +88,17 @@ class InvitationCompleteForm(RegisterForm):
 
     def save(self, commit=True):
         """
-        If commit=False, then you are responsible for connecting the user to the created_user field on the InvitedUser object and saving the InvitedUser.
+        If commit=False, then call `form.save_invited_user() to finish saving the invited_user once the new (normal) user has a pk.
         """
         user = super(InvitationCompleteForm, self).save(commit)
-        self.invited_user.created_user = user
-        if user.pk:
-            self.invited_user.save()
+
+        def save_invited_user():
+            invited_user = self.invited_user
+            invited_user.created_user = user
+            invited_user.status = InvitedUser.STATUS_REGISTERED
+            invited_user.save()
+        if commit:
+            save_invited_user()
+        else:
+            self.save_invited_user = save_invited_user
         return user

@@ -11,11 +11,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from django.core.urlresolvers import reverse
+from sky_visitor import views as sky_visitor_views
 
-from sky_visitor.views import LogoutView
 
-
-class CustomLogoutView(LogoutView):
+class CustomLogoutView(sky_visitor_views.LogoutView):
     # View to allow testing of overriden URL attribute
     redirect_url_overrides_redirect_field = True
     url = '/user/register/'
+
+
+class CustomInvitationCompleteView(sky_visitor_views.InvitationCompleteView):
+
+    def get_success_url(self):
+        return reverse('home')

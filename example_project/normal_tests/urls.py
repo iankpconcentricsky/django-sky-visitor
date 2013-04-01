@@ -1,6 +1,7 @@
 from django.conf.urls import patterns, include, url
 from django.views.generic.base import TemplateView
-from normal_tests.views import CustomLogoutView
+from normal_tests.views import CustomLogoutView, CustomInvitationCompleteView
+from sky_visitor.urls import TOKEN_REGEX
 
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
@@ -17,7 +18,11 @@ urlpatterns = patterns('',
     # Uncomment the next line to enable the admin:
     # url(r'^admin/', include(admin.site.urls)),
 
+    # Override this view so we can provide a success_url
+    url(r'invitation/%s/$' % TOKEN_REGEX, CustomInvitationCompleteView.as_view(), name='invitation_complete'),
+
     url(r'^user/', include('sky_visitor.urls')),
+
 
     # For testing
     url(r'^customlogout', CustomLogoutView.as_view(), name='custom_logout'),

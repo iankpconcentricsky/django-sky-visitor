@@ -30,7 +30,7 @@ class InvitedUser(models.Model):
     # We need to fake a few properties so we can use the default token generation code
     @property
     def last_login(self):
-        if self.created_user and hasattr('last_login', self.created_user):
+        if self.created_user and hasattr(self.created_user, 'last_login'):
             return self.created_user.last_login
         else:
             return datetime.datetime(2013, 1, 1, 0, 0, 0)
