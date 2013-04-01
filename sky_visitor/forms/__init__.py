@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from django import forms
+from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth import forms as auth_forms, get_user_model
 from sky_visitor.forms.fields import PasswordRulesField
@@ -19,6 +20,7 @@ from sky_visitor.models import InvitedUser
 
 
 class RegisterForm(auth_forms.UserCreationForm):
+
     class Meta:
         UserModel = get_user_model()
 
@@ -38,6 +40,7 @@ class LoginForm(auth_forms.AuthenticationForm):
 
 
 class PasswordResetForm(auth_forms.PasswordResetForm):
+
     def save(self, *args, **kwargs):
         """
         Override standard forgot password email sending. Sending now occurs in the view.
@@ -54,9 +57,18 @@ class PasswordChangeForm(auth_forms.PasswordChangeForm):
 
 
 class InvitationStartForm(forms.ModelForm):
+
     class Meta:
         model = InvitedUser
         fields = ['email']
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        # We need to verify that the user being invited doesn't already exist in the normal user table. Unique check is already done automatically for the InvitedUser table.
+        UserModel = get_user_model()
+        if UserModel._default_manager.filter(email=email).exists() or True:
+            raise ValidationError(_('User with this email already exists.'))
+        return email
 
     def save(self, commit=True):
         user = super(InvitationStartForm, self).save(commit=False)

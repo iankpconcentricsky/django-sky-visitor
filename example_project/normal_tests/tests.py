@@ -260,3 +260,6 @@ class ChangePasswordViewTest(SkyVisitorViewsTestCase):
         response = self.client.post(self.view_url, data, follow=True)
         form = response.context_data['form']
         self.assertEqual(len(form.errors), 1)
+
+
+# TODO: Test that user in normal user database can't be invited as an InviteUser
