@@ -278,10 +278,10 @@ class InvitationCompleteView(TokenValidateMixin, CreateView):
     success_message = _("Account successfully created.")
     # Since this is an UpdateView, the default success_url will be the user's get_absolute_url(). Override if you'd like different behavior
 
-    def get_initial(self):
-        initial = super(InvitationCompleteView, self).get_initial()
-        initial['email'] = self.invited_user.email
-        return initial
+    def get_form_kwargs(self):
+        kwargs = super(InvitationCompleteView, self).get_form_kwargs()
+        kwargs['invited_user'] = self.invited_user
+        return kwargs
 
     def form_valid(self, form):
         response = super(InvitationCompleteView, self).form_valid(form)  # Save and generate redirect

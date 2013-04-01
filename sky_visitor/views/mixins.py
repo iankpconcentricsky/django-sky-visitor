@@ -86,4 +86,7 @@ class TokenValidateMixin(object):
         return HttpResponseRedirect(self.get_invalid_token_redirect_url())
 
     def get_invalid_token_redirect_url(self):
+        """
+        Redirecting away from this page is recommended, so the user doesn't have any opportunity to see the invitation completion form if their token is invalid.
+        """
         return resolve_url(settings.LOGIN_URL)
