@@ -16,9 +16,9 @@ from django.contrib.auth import get_user_model
 from normal_tests import tests as normaltests
 
 
-class RegisterViewTest(normaltests.RegisterViewTest):
+class RegisterUserMixin(normaltests.RegisterUserMixin):
 
-    def get_test_data(self):
+    def get_register_user_data(self):
         data = {
             'email': 'registeruser@example.com',
             'date_of_birth': '1976-11-08',
@@ -27,10 +27,13 @@ class RegisterViewTest(normaltests.RegisterViewTest):
         }
         return data
 
+
+class RegisterViewTest(RegisterUserMixin, normaltests.RegisterViewTest):
+
     def test_registration_should_fail_on_duplicate_email(self):
         UserModel = get_user_model()
         testuser_email = 'testuser1@example.com'
-        data1 = self.get_test_data()
+        data1 = self.get_register_user_data()
         data1['email'] = testuser_email
         response1 = self.client.post(self.view_url, data=data1, follow=True)
         self.assertEqual(response1.status_code, 200)
@@ -62,4 +65,8 @@ class ForgotPasswordProcessTest(normaltests.ForgotPasswordProcessTest):
 
 
 class ChangePasswordViewTest(normaltests.ChangePasswordViewTest):
+    pass
+
+
+class InvitationProcessTest(RegisterUserMixin, normaltests.InvitationProcessTest):
     pass

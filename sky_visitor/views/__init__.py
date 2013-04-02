@@ -236,13 +236,10 @@ class ChangePasswordView(LoginRequiredMixin, FormView):
             return super(ChangePasswordView, self).get_success_url()
 
 
-class InvitationStartMixin(SendTokenEmailMixin):
+class InvitationStartView(SendTokenEmailMixin, CreateView):
     form_class = InvitationStartForm
-
-    def form_valid(self, form):
-        redirect = super(InvitationStartMixin, self).form_valid(form)
-        self.send_email(self.get_user_object())
-        return redirect
+    template_name = 'sky_visitor/invitation_start.html'
+    success_message = _("Invitation successfully delivered.")
 
     def get_user_object(self):
         """
@@ -254,10 +251,19 @@ class InvitationStartMixin(SendTokenEmailMixin):
         """
         return self.object
 
+    def form_valid(self, form):
+        redirect = super(InvitationStartView, self).form_valid(form)
+        self.send_email(self.get_user_object())
+        return redirect
 
-class InvitationStartView(InvitationStartMixin, CreateView):
-    template_name = 'sky_visitor/invitation_start.html'
-    success_message = _("Invitation successfully delivered.")
+    def get_email_kwargs(self, user):
+        kwargs = super(InvitationStartView, self).get_email_kwargs(user)
+        domain = self.request.get_host()
+        kwargs['email_template_name'] = 'sky_visitor/invitation_email.html'
+        kwargs['token_view_name'] = 'invitation_complete'
+        kwargs['domain'] = domain
+        kwargs['subject'] = "Invitation to Create Account at %s" % domain
+        return kwargs
 
     def get_success_url(self):
         messages.success(self.request, self.success_message, fail_silently=True)
@@ -287,10 +293,10 @@ class InvitationCompleteView(TokenValidateMixin, CreateView):
     def get_invited_user(self):
         return self.token_user
 
-    def get_initial(self):
-        initial = super(InvitationCompleteView, self).get_initial()
-        initial['email'] = self.get_invited_user().email
-        return initial
+    def get_form_kwargs(self):
+        kwargs = super(InvitationCompleteView, self).get_form_kwargs()
+        kwargs['invited_user'] = self.get_invited_user()
+        return kwargs
 
     def form_valid(self, form):
         response = super(InvitationCompleteView, self).form_valid(form)  # Save and generate redirect

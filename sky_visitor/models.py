@@ -24,13 +24,13 @@ class InvitedUser(models.Model):
         (STATUS_REGISTERED, "Registered"),
     )
     email = models.EmailField(max_length=254, unique=True)
-    status = models.CharField(max_length=32, blank=True, choices=STATUS_CHOICES)
+    status = models.CharField(max_length=32, default=STATUS_INVITED, choices=STATUS_CHOICES)
     created_user = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True)
 
     # We need to fake a few properties so we can use the default token generation code
     @property
     def last_login(self):
-        if self.created_user and hasattr('last_login', self.created_user):
+        if self.created_user and hasattr(self.created_user, 'last_login'):
             return self.created_user.last_login
         else:
             return datetime.datetime(2013, 1, 1, 0, 0, 0)

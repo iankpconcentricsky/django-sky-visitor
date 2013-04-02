@@ -66,8 +66,8 @@ class InvitationStartForm(forms.ModelForm):
         email = self.cleaned_data.get('email')
         # We need to verify that the user being invited doesn't already exist in the normal user table. Unique check is already done automatically for the InvitedUser table.
         UserModel = get_user_model()
-        if UserModel._default_manager.filter(email=email).exists() or True:
-            raise ValidationError(_('User with this email already exists.'))
+        if UserModel._default_manager.filter(email=email).exists():
+            raise ValidationError(_("User with this email already exists."))
         return email
 
     def save(self, commit=True):
@@ -78,4 +78,27 @@ class InvitationStartForm(forms.ModelForm):
 
 
 class InvitationCompleteForm(RegisterForm):
-    pass
+
+    def __init__(self, invited_user, *args, **kwargs):
+        self.invited_user = invited_user
+        initial = kwargs.get('initial', None)
+        if 'email' not in initial:
+            initial.update({'email': self.invited_user.email})
+        super(InvitationCompleteForm, self).__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        """
+        If commit=False, then call `form.save_invited_user() to finish saving the invited_user once the new (normal) user has a pk.
+        """
+        user = super(InvitationCompleteForm, self).save(commit)
+
+        def save_invited_user():
+            invited_user = self.invited_user
+            invited_user.created_user = user
+            invited_user.status = InvitedUser.STATUS_REGISTERED
+            invited_user.save()
+        if commit:
+            save_invited_user()
+        else:
+            self.save_invited_user = save_invited_user
+        return user
