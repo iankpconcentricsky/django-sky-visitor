@@ -192,7 +192,7 @@ class ForgotPasswordChangeView(TokenValidateMixin, FormView):
 
     def get_form_kwargs(self):
         kwargs = super(ForgotPasswordChangeView, self).get_form_kwargs()
-        kwargs['user'] = self.get_user_from_token()  # Form expects this
+        kwargs['user'] = self.token_user  # Form expects this
         return kwargs
 
     def get_form(self, form_class):
@@ -205,7 +205,7 @@ class ForgotPasswordChangeView(TokenValidateMixin, FormView):
         if self.is_token_valid:
             form.save()
             messages.success(self.request, self.success_message, fail_silently=True)
-            auto_login(self.request, self.get_user_from_token())
+            auto_login(self.request, self.token_user)
         return super(ForgotPasswordChangeView, self).form_valid(form)
 
     def get_success_url(self):
@@ -278,9 +278,18 @@ class InvitationCompleteView(TokenValidateMixin, CreateView):
     success_message = _("Account successfully created.")
     # Since this is an UpdateView, the default success_url will be the user's get_absolute_url(). Override if you'd like different behavior
 
+    def get_user_model_class(self):
+        """
+        Used for token validation. We're faking a real user with the InvitedUser so we can use django core's token validation code.
+        """
+        return InvitedUser
+
+    def get_invited_user(self):
+        return self.token_user
+
     def get_initial(self):
         initial = super(InvitationCompleteView, self).get_initial()
-        initial['email'] = self.invited_user.email
+        initial['email'] = self.get_invited_user().email
         return initial
 
     def form_valid(self, form):
@@ -292,6 +301,6 @@ class InvitationCompleteView(TokenValidateMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context_data = super(InvitationCompleteView, self).get_context_data(**kwargs)
-        context_data['invited_user'] = self.invited_user
+        context_data['invited_user'] = self.get_invited_user()
         context_data['is_token_valid'] = self.is_token_valid
         return context_data
