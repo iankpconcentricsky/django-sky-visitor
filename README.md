@@ -1,6 +1,4 @@
-A full featured authentication and user system that extends the default Django contib.auth pacakge.
-
-**Note:** Version 0.8.4. This library is under active development. While in active development, the API will be changing frequently.
+A full featured authentication and user system that complements django.contib.auth.
 
 
 # Features
@@ -15,7 +13,6 @@ A full featured authentication and user system that extends the default Django c
   * Customize views and URLs
   * Customize forms
   * Choose to not automatically log a user in after they compelte a registration, or password reset
-  * Don't create users with `manage.py createsuperuser` or `django.contrib.auth.models.User.create_user()` because there won't be a proper entry in the subclassed user table for them
 
 ### Messages
 This app uses the [messages framework](https://docs.djangoproject.com/en/dev/ref/contrib/messages/) to pass success messages
@@ -23,38 +20,40 @@ around after certain events (password reset completion, for example). If you wou
 your users in this way, make sure you follow the message framework docs to enable and render these messages on your site.
 
 
-# Settings
-Must specify `SECRET_KEY` in your settings for any emails with tokens to be secure (example: invitation, confirm email address, forgot password, etc)
+# Setup & Configuration
+
+Install this package using pip:
+
+    pip install git+https://github.com/concentricsky/django-sky-visitor.git@v1.0#egg=django-sky-visitor
+
+Add `'sky_visitor'` to your `INSTALLED_APPS` array.
+
+You must specify `SECRET_KEY` in your settings for any emails with tokens to be secure (example: invitation, confirm email address, forgot password, etc)
 
 You must at least set `LOGIN_URL` to `"login"`. You can optionally another valid URL or URL name of your own. Certain views in Sky Visitor depend on an accurate value for this setting and the default value in Django core (`"/authentication/login/"`) is likely invalid unless you have created it.
 
+
 # Testing
 
-Tests are broken into three separate apps running under three different "modes":
+Tests are broken into two separate apps running under three different "modes":
 
-  1. "auth user" mode (default)
-    * Uses `authuser_tests/settings.py`
+  1. "normal user" mode (default)
+    * Uses `noramluser_tests/settings.py`
     * Uses `django.contrib.auth.models.User` as the user model
-    * Contains most of the tests
-  2. "email user" mode
-    * Uses `email_tests/settings.py`
-    * Uses `email_tests.models.User` (a subclass of `sky_visitor.models.EmailExtendedUser`) as the user model
-  2. "username user" mode
-    * Uses `username_tests/settings.py`
-    * Uses `username_tests.models.User` (a subclass of `sky_visitor.models.ExtendedUser`) as the user model
-
+    * Contains the base tests
+  2. "custom user" mode
+    * Uses `customuser_tests/settings.py`
+    * Uses `django.contrib.auth.test.custom_user.CustomUser` as the user model
 
 A test runner is configured in each settings.py to run only the tests that are appropriate.
 
 You can run the tests like so:
 
-    cd authuser_tests
-    # "auth user" tests
+    cd example_project
+    # "normal user" tests
     ./manage.py test
-    # "email user" tests
-    ./manage.py test --settings=email_tests.settings
-    # Run username-based tests
-    ./manage.py test --settings=username_tests.settings
+    # "custom user" tests
+    ./manage.py test --settings=customuser_tests.settings
 
 
 # Roadmap
@@ -80,4 +79,3 @@ Please fork this repo and send pull requests. Submit issues/questions/suggestion
 Built at [Concentric Sky](http://www.concentricsky.com/) by [Jeremy Blanchard](http://github.com/auzigog/).
 
 This project is licensed under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0). Copyright 2013 Concentric Sky, Inc.
-
