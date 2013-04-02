@@ -259,6 +259,15 @@ class InvitationStartView(InvitationStartMixin, CreateView):
     template_name = 'sky_visitor/invitation_start.html'
     success_message = _("Invitation successfully delivered.")
 
+    def get_email_kwargs(self, user):
+        kwargs = super(InvitationStartView, self).get_email_kwargs(user)
+        domain = self.request.get_host()
+        kwargs['email_template_name'] = 'sky_visitor/invitation_email.html'
+        kwargs['token_view_name'] = 'invitation_complete'
+        kwargs['domain'] = domain
+        kwargs['subject'] = "Invitation to Create Account at %s" % domain
+        return kwargs
+
     def get_success_url(self):
         messages.success(self.request, self.success_message, fail_silently=True)
         return self.request.path
@@ -278,11 +287,6 @@ class InvitationCompleteView(TokenValidateMixin, CreateView):
     success_message = _("Account successfully created.")
     # Since this is an UpdateView, the default success_url will be the user's get_absolute_url(). Override if you'd like different behavior
 
-    def get_form_kwargs(self):
-        kwargs = super(InvitationCompleteView, self).get_form_kwargs()
-        kwargs['invited_user'] = self.invited_user
-        return kwargs
-
     def get_user_model_class(self):
         """
         Used for token validation. We're faking a real user with the InvitedUser so we can use django core's token validation code.
@@ -293,8 +297,8 @@ class InvitationCompleteView(TokenValidateMixin, CreateView):
         return self.token_user
 
     def get_form_kwargs(self):
-        kwargs = super(InvitationCompleteView, self).get_form_kwargs()
-        kwargs['invited_user'] = self.invited_user
+        kwargs = super(InvitationCompleteView, self).get _form_kwargs()
+        kwargs['invited_user'] = self.get_invited_user()
         return kwargs
 
     def form_valid(self, form):

@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 from django.conf import settings
 from django.contrib.auth import get_user_model, SESSION_KEY
 from django.contrib.auth.forms import SetPasswordForm
@@ -20,7 +19,8 @@ from django.core import mail
 from django.core.urlresolvers import reverse
 from django.utils.http import int_to_base36
 from django.utils.text import capfirst
-from sky_visitor.forms import LoginForm
+from sky_visitor.models import InvitedUser
+from sky_visitor.forms import InvitationCompleteForm
 from sky_visitor.tests import SkyVisitorTestCase
 
 
@@ -152,7 +152,7 @@ class ForgotPasswordProcessTest(SkyVisitorViewsTestCase):
         if user is None:
             user = self.default_user
         url = reverse('forgot_password_change', kwargs={'uidb36': int_to_base36(user.id), 'token': default_token_generator.make_token(user)})
-        if  with_host:
+        if with_host:
             url = 'http://testserver%s' % url
         return url
 
@@ -208,10 +208,10 @@ class ForgotPasswordProcessTest(SkyVisitorViewsTestCase):
         response = self.client.get(self._get_password_reset_url())
         self.assertEqual(response.status_code, 200)
         # User ID of this token is modified
-        response = self.client.get('http://testserver/user/forgot_password/2-35t-d4e092280eb134000672/', follow=True)
+        response = self.client.get('/user/forgot_password/2-35t-d4e092280eb134000672/', follow=True)
         self.assertRedirects(response, '/user/login/')
         # Token modified
-        response = self.client.get('http://testserver/user/forgot_password/1-35t-d4e092280eb134000671/', follow=True)
+        response = self.client.get('/user/forgot_password/1-35t-d4e092280eb134000671/', follow=True)
         self.assertRedirects(response, '/user/login/')
 
 
@@ -262,10 +262,15 @@ class ChangePasswordViewTest(SkyVisitorViewsTestCase):
         self.assertEqual(len(form.errors), 1)
 
 
-# TODO: Test that user in normal user database can't be invited as an InviteUser
-
-class InvitationStartViewTest(SkyVisitorViewsTestCase):
+class InvitationProcessTest(SkyVisitorViewsTestCase):
     view_url = '/user/invitation/'
+    invited_user_email = 'invited@example.com'
+
+    def _get_invitation_complete_url(self, user=None, with_host=True):
+        url = reverse('invitation_complete', kwargs={'uidb36': int_to_base36(user.id), 'token': default_token_generator.make_token(user)})
+        if with_host:
+            url = 'http://testserver%s' % url
+        return url
 
     def test_view_should_exist(self):
         self.login()
@@ -273,3 +278,32 @@ class InvitationStartViewTest(SkyVisitorViewsTestCase):
         self.assertEqual(response.status_code, 200)
         form = response.context_data['form']
         self.assertIn('email', form.fields)
+
+    def test_should_invite_user(self):
+        data = {
+            'email': self.invited_user_email
+        }
+        response = self.client.post(self.view_url, data, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        # Should create an InvitedUser
+        invited_user = InvitedUser.objects.get(email=self.invited_user_email)
+        self.assertIsNotNone(invited_user)
+
+        # Should send the message
+        self.assertEqual(len(mail.outbox), 1)
+        message = mail.outbox[0]
+        # Should be sent to the right person
+        self.assertIn(data['email'], message.to)
+        # Should have the correct subject
+        self.assertEqual(message.subject, "Invitation to Create Account at testserver")
+        invitation_complete_url = self._get_invitation_complete_url(invited_user)
+        # Should have the link in the body of the message
+        self.assertIn(invitation_complete_url, message.body)
+        # Link in email should work and land you on an invitation complete form
+        response2 = self.client.get(invitation_complete_url)
+        self.assertIsInstance(response2.context_data['form'], InvitationCompleteForm)
+
+
+    # TODO: Test that InvitedUser has a unique email column
+    # TODO: Test that user in normal user database can't be invited as an InviteUser

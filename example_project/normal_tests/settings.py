@@ -46,7 +46,7 @@ TESTS_TO_RUN = [
     'normal_tests.LogoutViewTest',
     'normal_tests.ForgotPasswordProcessTest',
     'normal_tests.ChangePasswordViewTest',
-    'normal_tests.InvitationStartViewTest',
+    'normal_tests.InvitationProcessTest',
 ]
 
 DATABASES = {
