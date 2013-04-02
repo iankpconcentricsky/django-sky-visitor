@@ -67,7 +67,7 @@ class InvitationStartForm(forms.ModelForm):
         # We need to verify that the user being invited doesn't already exist in the normal user table. Unique check is already done automatically for the InvitedUser table.
         UserModel = get_user_model()
         if UserModel._default_manager.filter(email=email).exists():
-            raise ValidationError(_('User with this email already exists.'))
+            raise ValidationError(_("User with this email already exists."))
         return email
 
     def save(self, commit=True):

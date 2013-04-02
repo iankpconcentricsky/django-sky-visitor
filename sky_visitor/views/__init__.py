@@ -236,13 +236,10 @@ class ChangePasswordView(LoginRequiredMixin, FormView):
             return super(ChangePasswordView, self).get_success_url()
 
 
-class InvitationStartMixin(SendTokenEmailMixin):
+class InvitationStartView(SendTokenEmailMixin, CreateView):
     form_class = InvitationStartForm
-
-    def form_valid(self, form):
-        redirect = super(InvitationStartMixin, self).form_valid(form)
-        self.send_email(self.get_user_object())
-        return redirect
+    template_name = 'sky_visitor/invitation_start.html'
+    success_message = _("Invitation successfully delivered.")
 
     def get_user_object(self):
         """
@@ -254,10 +251,10 @@ class InvitationStartMixin(SendTokenEmailMixin):
         """
         return self.object
 
-
-class InvitationStartView(InvitationStartMixin, CreateView):
-    template_name = 'sky_visitor/invitation_start.html'
-    success_message = _("Invitation successfully delivered.")
+    def form_valid(self, form):
+        redirect = super(InvitationStartView, self).form_valid(form)
+        self.send_email(self.get_user_object())
+        return redirect
 
     def get_email_kwargs(self, user):
         kwargs = super(InvitationStartView, self).get_email_kwargs(user)

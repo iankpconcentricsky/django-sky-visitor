@@ -304,6 +304,29 @@ class InvitationProcessTest(SkyVisitorViewsTestCase):
         response2 = self.client.get(invitation_complete_url)
         self.assertIsInstance(response2.context_data['form'], InvitationCompleteForm)
 
+    def test_should_not_allow_duplicate_invitation(self):
+        data = {
+            'email': self.invited_user_email
+        }
+        response = self.client.post(self.view_url, data, follow=True)
+        self.assertEqual(response.status_code, 200)
 
-    # TODO: Test that InvitedUser has a unique email column
+        # Post again with same data
+        response = self.client.post(self.view_url, data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        form = response.context_data['form']
+        self.assertEqual(len(form.errors), 1)
+
+    def test_should_not_allow_normal_user_to_be_invited(self):
+        # Try to invite the user in the fixture data, since we know it's already an entry in the normal user table
+        data = {
+            'email': FIXTURE_USER_DATA['email']
+        }
+        response = self.client.post(self.view_url, data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        form = response.context_data['form']
+        self.assertEqual(len(form.errors), 1)
+        self.assertEqual(form.errors['email'], ["User with this email already exists."])
+
+
     # TODO: Test that user in normal user database can't be invited as an InviteUser
