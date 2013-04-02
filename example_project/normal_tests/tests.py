@@ -50,17 +50,19 @@ class SkyVisitorViewsTestCase(SkyVisitorTestCase):
         self.assertTrue(SESSION_KEY in self.client.session)
 
 
-class RegisterViewTest(SkyVisitorViewsTestCase):
-    view_url = '/user/register/'
+class RegisterUserMixin(object):
 
-    def get_test_data(self):
-        # Includ
+    def get_register_user_data(self):
         data = {
             'username': 'registeruser',
             'password1': 'password',
             'password2': 'password',
         }
         return data
+
+
+class RegisterViewTest(RegisterUserMixin, SkyVisitorViewsTestCase):
+    view_url = '/user/register/'
 
     def test_register_view_exists(self):
         response = self.client.get(self.view_url)
@@ -69,7 +71,7 @@ class RegisterViewTest(SkyVisitorViewsTestCase):
 
     def test_registration_should_succeed(self):
         UserModel = get_user_model()
-        data = self.get_test_data()
+        data = self.get_register_user_data()
         testuser_username = data[UserModel.USERNAME_FIELD]
         response = self.client.post(self.view_url, data=data, follow=True)
         self.assertEqual(response.status_code, 200)
@@ -79,7 +81,7 @@ class RegisterViewTest(SkyVisitorViewsTestCase):
         self.assertEqual(UserModel._default_manager.filter(**{UserModel.USERNAME_FIELD: testuser_username}).count(), 1)
 
     def test_registration_should_fail_on_mismatched_password(self):
-        data = self.get_test_data()
+        data = self.get_register_user_data()
         data['password2'] = 'mismatch'
         response = self.client.post(self.view_url, data=data)
         self.assertEqual(response.status_code, 200)
@@ -262,7 +264,7 @@ class ChangePasswordViewTest(SkyVisitorViewsTestCase):
         self.assertEqual(len(form.errors), 1)
 
 
-class InvitationProcessTest(SkyVisitorViewsTestCase):
+class InvitationProcessTest(RegisterUserMixin, SkyVisitorViewsTestCase):
     view_url = '/user/invitation/'
     invited_user_email = 'invited@example.com'
 
@@ -279,7 +281,7 @@ class InvitationProcessTest(SkyVisitorViewsTestCase):
         form = response.context_data['form']
         self.assertIn('email', form.fields)
 
-    def test_should_invite_user(self):
+    def _invite_user(self):
         data = {
             'email': self.invited_user_email
         }
@@ -289,12 +291,16 @@ class InvitationProcessTest(SkyVisitorViewsTestCase):
         # Should create an InvitedUser
         invited_user = InvitedUser.objects.get(email=self.invited_user_email)
         self.assertIsNotNone(invited_user)
+        return invited_user
+
+    def test_should_invite_user(self):
+        invited_user = self._invite_user()
 
         # Should send the message
         self.assertEqual(len(mail.outbox), 1)
         message = mail.outbox[0]
         # Should be sent to the right person
-        self.assertIn(data['email'], message.to)
+        self.assertIn(self.invited_user_email, message.to)
         # Should have the correct subject
         self.assertEqual(message.subject, "Invitation to Create Account at testserver")
         invitation_complete_url = self._get_invitation_complete_url(invited_user)
@@ -328,5 +334,23 @@ class InvitationProcessTest(SkyVisitorViewsTestCase):
         self.assertEqual(len(form.errors), 1)
         self.assertEqual(form.errors['email'], ["User with this email already exists."])
 
+    def test_should_complete_invitation_registration_from(self):
+        invited_user = self._invite_user()
 
-    # TODO: Test that user in normal user database can't be invited as an InviteUser
+        UserModel = get_user_model()
+        invitation_complete_url = self._get_invitation_complete_url(invited_user)
+        data = self.get_register_user_data()
+        data['email'] = self.invited_user_email
+        testuser_username = data[UserModel.USERNAME_FIELD]
+        response = self.client.post(invitation_complete_url, data=data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        # Should redirect to '/' (LOGIN_REDIRECT_URL)
+        self.assertRedirects(response, '/')
+        # Lookup the user based on the username field and the value in the test data
+        user_qs = UserModel._default_manager.filter(**{UserModel.USERNAME_FIELD: testuser_username})
+        self.assertEqual(user_qs.count(), 1)
+        user = user_qs.get()
+        # Make sure the InvitedUser points to the newly created user
+        invited_user_updated = InvitedUser.objects.get(email=invited_user.email)
+        self.assertEqual(invited_user_updated.created_user.id, user.id)
+        self.assertEqual(invited_user_updated.status, InvitedUser.STATUS_REGISTERED)
