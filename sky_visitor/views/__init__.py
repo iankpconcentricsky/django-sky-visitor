@@ -297,7 +297,7 @@ class InvitationCompleteView(TokenValidateMixin, CreateView):
         return self.token_user
 
     def get_form_kwargs(self):
-        kwargs = super(InvitationCompleteView, self).get _form_kwargs()
+        kwargs = super(InvitationCompleteView, self).get_form_kwargs()
         kwargs['invited_user'] = self.get_invited_user()
         return kwargs
 
