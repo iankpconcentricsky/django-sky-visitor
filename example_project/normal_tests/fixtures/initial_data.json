@@ -16,5 +16,23 @@
             "email": "testuser@example.com",
             "date_joined": "2012-03-21T20:52:24.955Z"
         }
+    },
+    {
+        "pk": 2,
+        "model": "auth.user",
+        "fields": {
+            "username": "admin",
+            "first_name": "",
+            "last_name": "",
+            "is_active": true,
+            "is_superuser": true,
+            "is_staff": true,
+            "last_login": "2013-04-02T21:04:13.663Z",
+            "groups": [],
+            "user_permissions": [],
+            "password": "pbkdf2_sha256$10000$09zZ60Zgoifu$kJcCikacpVj2MIXNMqpgGdFNeEI566v4fNm26CXxpBc=",
+            "email": "admin@example.com",
+            "date_joined": "2013-04-02T21:04:13.663Z"
+        }
     }
 ]
