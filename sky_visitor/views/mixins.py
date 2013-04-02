@@ -39,8 +39,11 @@ class SendTokenEmailMixin(object):
     def get_email_kwargs(self, user):
         return {'user': user}
 
+    def get_email_tempalte(self, user):
+        return self.email_template_class(**self.get_email_kwargs(user))
+
     def send_email(self, user):
-        email_template = self.email_template_class(**self.get_email_kwargs(user))
+        email_template = self.get_email_tempalte(user)
         return email_template.send_email()
 
 
