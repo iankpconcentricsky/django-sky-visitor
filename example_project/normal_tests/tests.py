@@ -263,3 +263,13 @@ class ChangePasswordViewTest(SkyVisitorViewsTestCase):
 
 
 # TODO: Test that user in normal user database can't be invited as an InviteUser
+
+class InvitationStartViewTest(SkyVisitorViewsTestCase):
+    view_url = '/user/invitation/'
+
+    def test_view_should_exist(self):
+        self.login()
+        response = self.client.get(self.view_url)
+        self.assertEqual(response.status_code, 200)
+        form = response.context_data['form']
+        self.assertIn('email', form.fields)
