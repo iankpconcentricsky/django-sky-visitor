@@ -25,7 +25,7 @@ from django.utils.http import int_to_base36
 
 class TokenTemplateEmail(object):
 
-    def __init__(self, user, email_template_name='sky_visitor/invitation_email.html', token_view_name='invitation_complete', request=None, protocol='http', domain='localhost', subject=None, from_email=None, token_generator=default_token_generator):
+    def __init__(self, user, email_template_name='sky_visitor/invitation_email.html', token_view_name='invitation_complete', request=None, protocol='http', domain='localhost', subject="Invitation to Create Account", from_email=None, token_generator=default_token_generator):
         self.user = user
         self.email_template_name = email_template_name
         self.token_view_name = token_view_name
