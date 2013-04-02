@@ -59,19 +59,11 @@ You can run the tests like so:
 
 # Roadmap
 
-Development TODO list:
-
-  * Invitation clean up and tests
-  * Fix setup.py
-
 Features to add:
 
-  * Admin login form should handle email-only authentication
-  * Email confirmation on registration
+  * A user should have to confirm their email address before being allowed to finalize their registration
   * Implement `LOGOUT_REDIRECT_URL`
   * Better built in password rules. Options for extending the password rules.
-  * Refactor token URL generation to `utils.py`
-  * Change email form and email confirmation page
 
 Improvements to documentation:
 
