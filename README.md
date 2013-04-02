@@ -14,7 +14,7 @@ A full featured authentication and user system that complements django.contib.au
   * Customize forms
   * Choose to not automatically log a user in after they compelte a registration, or password reset
 
-### Messages
+## Messages
 This app uses the [messages framework](https://docs.djangoproject.com/en/dev/ref/contrib/messages/) to pass success messages
 around after certain events (password reset completion, for example). If you would like to improve the experience for
 your users in this way, make sure you follow the message framework docs to enable and render these messages on your site.
