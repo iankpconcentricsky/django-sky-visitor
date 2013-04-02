@@ -13,6 +13,7 @@
 # limitations under the License.
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.tokens import default_token_generator
 from django.http import HttpResponseRedirect
@@ -21,7 +22,6 @@ from django.utils.decorators import method_decorator
 from django.utils.functional import cached_property
 from django.utils.http import base36_to_int
 from django.utils.translation import ugettext_lazy as _
-from sky_visitor.models import InvitedUser
 from sky_visitor.emails import TokenTemplateEmail
 
 
@@ -56,26 +56,26 @@ class TokenValidateMixin(object):
     def get_token_generator(self):
         return self.token_generator
 
-    def get_invited_user_model_class(self):
-        return InvitedUser
+    def get_user_model_class(self):
+        return get_user_model()
 
     @cached_property
-    def invited_user(self):
+    def token_user(self):
         uidb36 = self.kwargs.get('uidb36')
         assert uidb36 is not None
-        InvitedUserModel = self.get_invited_user_model_class()
-        if not hasattr(self, '_invited_user'):
+        UserModel = self.get_user_model_class()
+        if not hasattr(self, '_token_user'):
             try:
                 uid_int = base36_to_int(uidb36)
-                self._invited_user = InvitedUserModel._default_manager.get(id=uid_int)
-            except (ValueError, OverflowError, InvitedUserModel.DoesNotExist):
-                self._invited_user = None
-        return self._invited_user
+                self._token_user = UserModel._default_manager.get(id=uid_int)
+            except (ValueError, OverflowError, UserModel.DoesNotExist):
+                self._token_user = None
+        return self._token_user
 
     def dispatch(self, request, *args, **kwargs):
         token = kwargs['token']
         assert token is not None  # checked by URLconf
-        self.is_token_valid = (self.invited_user is not None and self.get_token_generator().check_token(self.invited_user, token))
+        self.is_token_valid = (self.token_user is not None and self.get_token_generator().check_token(self.token_user, token))
         if not self.is_token_valid:
             return self.token_invalid(request, *args, **kwargs)
         return super(TokenValidateMixin, self).dispatch(request, *args, **kwargs)

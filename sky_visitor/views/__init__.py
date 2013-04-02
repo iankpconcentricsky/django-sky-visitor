@@ -192,7 +192,7 @@ class ForgotPasswordChangeView(TokenValidateMixin, FormView):
 
     def get_form_kwargs(self):
         kwargs = super(ForgotPasswordChangeView, self).get_form_kwargs()
-        kwargs['user'] = self.get_user_from_token()  # Form expects this
+        kwargs['user'] = self.token_user  # Form expects this
         return kwargs
 
     def get_form(self, form_class):
@@ -205,7 +205,7 @@ class ForgotPasswordChangeView(TokenValidateMixin, FormView):
         if self.is_token_valid:
             form.save()
             messages.success(self.request, self.success_message, fail_silently=True)
-            auto_login(self.request, self.get_user_from_token())
+            auto_login(self.request, self.token_user)
         return super(ForgotPasswordChangeView, self).form_valid(form)
 
     def get_success_url(self):
@@ -283,6 +283,20 @@ class InvitationCompleteView(TokenValidateMixin, CreateView):
         kwargs['invited_user'] = self.invited_user
         return kwargs
 
+    def get_user_model_class(self):
+        """
+        Used for token validation. We're faking a real user with the InvitedUser so we can use django core's token validation code.
+        """
+        return InvitedUser
+
+    def get_invited_user(self):
+        return self.token_user
+
+    def get_form_kwargs(self):
+        kwargs = super(InvitationCompleteView, self).get_form_kwargs()
+        kwargs['invited_user'] = self.invited_user
+        return kwargs
+
     def form_valid(self, form):
         response = super(InvitationCompleteView, self).form_valid(form)  # Save and generate redirect
         if self.auto_login_on_success:
@@ -292,6 +306,6 @@ class InvitationCompleteView(TokenValidateMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context_data = super(InvitationCompleteView, self).get_context_data(**kwargs)
-        context_data['invited_user'] = self.invited_user
+        context_data['invited_user'] = self.get_invited_user()
         context_data['is_token_valid'] = self.is_token_valid
         return context_data
