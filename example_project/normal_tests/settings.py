@@ -1,3 +1,17 @@
+# Copyright 2013 Concentric Sky, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
@@ -8,10 +22,12 @@ TEMPLATE_DEBUG = DEBUG
 #
 ###
 
+LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = '/'
 
+
 INSTALLED_APPS = [
-    'authuser_tests',
+    'normal_tests',
     'sky_visitor',
 
     'django.contrib.auth',
@@ -25,10 +41,20 @@ INSTALLED_APPS = [
 
 TESTS_TO_RUN = [
     'sky_visitor',
-    'authuser_tests.TestRegister',
-    'authuser_tests.TestAuthUserLoginForm',
-    'authuser_tests.TestForgotPasswordProcess',
+    'normal_tests.RegisterViewTest',
+    'normal_tests.LoginViewTest',
+    'normal_tests.LogoutViewTest',
+    'normal_tests.ForgotPasswordProcessTest',
+    'normal_tests.ChangePasswordViewTest',
+    'normal_tests.InvitationProcessTest',
 ]
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'db-normal.sqlite3',
+    }
+}
 
 
 ###
@@ -40,7 +66,7 @@ import os.path
 PROJECT_DIR = os.path.dirname(os.path.dirname(__file__))
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-TEST_RUNNER = 'authuser_tests.runners.DefaultTestRunner'
+TEST_RUNNER = 'normal_tests.runners.DefaultTestRunner'
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
@@ -48,21 +74,14 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'db.sqlite3',
-    }
-}
-
+# Hosts/domain names that are valid for this site; required if DEBUG is False
+# See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
+ALLOWED_HOSTS = []
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
-# On Unix systems, a value of None will cause Django to use the same
-# timezone as the operating system.
-# If running in a Windows environment this must be set to the same as your
-# system time zone.
+# In a Windows environment this must be set to your system time zone.
 TIME_ZONE = 'America/Chicago'
 
 # Language code for this installation. All choices can be found here:
@@ -83,22 +102,22 @@ USE_L10N = True
 USE_TZ = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
-# Example: "/home/media/media.lawrence.com/media/"
+# Example: "/var/www/example.com/media/"
 MEDIA_ROOT = ''
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
-# Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
+# Examples: "http://example.com/media/", "http://media.example.com/"
 MEDIA_URL = ''
 
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
-# Example: "/home/media/media.lawrence.com/static/"
+# Example: "/var/www/example.com/static/"
 STATIC_ROOT = ''
 
 # URL prefix for static files.
-# Example: "http://media.lawrence.com/static/"
+# Example: "http://example.com/static/", "http://static.example.com/"
 STATIC_URL = '/static/'
 
 # Additional locations of static files
@@ -136,10 +155,10 @@ MIDDLEWARE_CLASSES = (
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'authuser_tests.urls'
+ROOT_URLCONF = 'normal_tests.urls'
 
 # Python dotted path to the WSGI application used by Django's runserver.
-WSGI_APPLICATION = 'authuser_tests.wsgi.application'
+WSGI_APPLICATION = 'normal_tests.wsgi.application'
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".

@@ -1,4 +1,4 @@
-# Copyright 2012 Concentric Sky, Inc.
+# Copyright 2013 Concentric Sky, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,8 +15,10 @@
 from django import forms
 from django.forms import widgets
 
+
 class Html5EmailInput(widgets.Input):
     input_type = 'email'
+
 
 class PasswordRulesField(forms.CharField):
     DEFAULT_MIN_LENGTH = 8
@@ -31,6 +33,6 @@ class PasswordRulesField(forms.CharField):
         super(PasswordRulesField, self).__init__(max_length, min_length, *args, **kwargs)
 
     def clean(self, value):
-        if len(value) < self.min_length:
+        if value is None or len(value) < self.min_length:
             raise forms.ValidationError("Password must be at least %d characters long." % self.min_length)
         return super(PasswordRulesField, self).clean(value)

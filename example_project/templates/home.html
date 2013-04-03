@@ -1,12 +1,14 @@
-<h1>Django Sky Visitor</h1>
-<h2>Home</h2>
+{% extends "sky_visitor/base.html" %}
 
-<p>
-    Current user: {{ user }}
-</p>
+{% block content %}
+    <h1>Django Sky Visitor</h1>
+    <h2>Home</h2>
 
-<p>
-    <a href="{% url register %}">Register</a>,
-    <a href="{% url login %}">Log In</a>,
-    <a href="{% url logout %}">Log Out</a>,
-</p>
+    <p>
+        <a href="{% url "register" %}">Register</a>,
+        <a href="{% url "login" %}">Log In</a>,
+        <a href="{% url "logout" %}">Log Out</a>,
+        <a href="{% url "invitation_start" %}">Invitation</a>,
+        <a href="/admin/">Admin</a>,
+    </p>
+{% endblock %}

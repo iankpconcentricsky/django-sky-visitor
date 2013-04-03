@@ -1,0 +1,26 @@
+[
+    {
+        "pk": 1,
+        "model": "auth.customuser",
+        "fields": {
+            "is_active": true,
+            "date_of_birth": "1988-06-02",
+            "is_admin": false,
+            "last_login": "2013-03-15T00:00:35.021Z",
+            "password": "pbkdf2_sha256$10000$TdB2mN8NFEo9$kE2qXGVHKtXHpXuZD9BZ7x7Cj1gsvLWDN3XJYkUXInE=",
+            "email": "testuser@example.com"
+        }
+    },
+    {
+        "pk": 2,
+        "model": "auth.customuser",
+        "fields": {
+            "is_active": true,
+            "date_of_birth": "1988-06-02",
+            "is_admin": true,
+            "last_login": "2013-04-02T21:04:13.663Z",
+            "password": "pbkdf2_sha256$10000$09zZ60Zgoifu$kJcCikacpVj2MIXNMqpgGdFNeEI566v4fNm26CXxpBc=",
+            "email": "admin@example.com"
+        }
+    }
+]
