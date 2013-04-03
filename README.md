@@ -32,6 +32,10 @@ You must specify `SECRET_KEY` in your settings for any emails with tokens to be 
 
 You must at least set `LOGIN_URL` to `"login"`. You can optionally specify another valid URL or URL name of your own. Certain views in Sky Visitor depend on an accurate value for this setting and the default value in Django core (`"/authentication/login/"`) is likely invalid unless you have created it.
 
+If you wish to use the default URLs, add them to your `urls.py` like so:
+
+    url(r'^user/', include('sky_visitor.urls')),
+
 
 # Testing
 
