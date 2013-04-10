@@ -33,6 +33,17 @@ class RegisterForm(auth_forms.UserCreationForm):
         if UserModel.USERNAME_FIELD != 'username':
             del self.fields['username']
 
+    def clean_username(self):
+        # Since User.username is unique, this check is redundant,
+        # but it sets a nicer error message than the ORM. See #13147.
+        UserModel = self.Meta.model
+        username = self.cleaned_data["username"]
+        try:
+            UserModel._default_manager.get(username=username)
+        except UserModel.DoesNotExist:
+            return username
+        raise forms.ValidationError(self.error_messages['duplicate_username'])
+
 
 class LoginForm(auth_forms.AuthenticationForm):
     # Note: The username field will always be called 'username' despite what UserModel.USERNAME_FIELD is
