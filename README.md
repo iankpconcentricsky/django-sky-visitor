@@ -24,13 +24,17 @@ your users in this way, make sure you follow the message framework docs to enabl
 
 Install this package using pip:
 
-    pip install git+https://github.com/concentricsky/django-sky-visitor.git@v1.0
+    pip install git+https://github.com/concentricsky/django-sky-visitor.git@v1.0.1
 
 Add `'sky_visitor'` to your `INSTALLED_APPS` array.
 
 You must specify `SECRET_KEY` in your settings for any emails with tokens to be secure (example: invitation, confirm email address, forgot password, etc)
 
 You must at least set `LOGIN_URL` to `"login"`. You can optionally specify another valid URL or URL name of your own. Certain views in Sky Visitor depend on an accurate value for this setting and the default value in Django core (`"/authentication/login/"`) is likely invalid unless you have created it.
+
+If you wish to use the default URLs, add them to your `urls.py` like so:
+
+    url(r'^user/', include('sky_visitor.urls')),
 
 
 # Testing
