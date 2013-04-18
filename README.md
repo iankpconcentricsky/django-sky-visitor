@@ -24,7 +24,7 @@ your users in this way, make sure you follow the message framework docs to enabl
 
 Install this package using pip:
 
-    pip install git+https://github.com/concentricsky/django-sky-visitor.git@v1.0
+    pip install git+https://github.com/concentricsky/django-sky-visitor.git@v1.0.1
 
 Add `'sky_visitor'` to your `INSTALLED_APPS` array.
 
