@@ -16,13 +16,16 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.tokens import default_token_generator
+from django.contrib.sites.models import Site
+from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import resolve_url
 from django.utils.decorators import method_decorator
 from django.utils.functional import cached_property
-from django.utils.http import base36_to_int
+from django.utils.http import base36_to_int, int_to_base36
 from django.utils.translation import ugettext_lazy as _
-from sky_visitor.emails import TokenTemplateEmail
+
+from emailtemplates.utils import send_email_template
 
 
 class LoginRequiredMixin(object):
@@ -34,17 +37,45 @@ class LoginRequiredMixin(object):
 
 
 class SendTokenEmailMixin(object):
-    email_template_class = TokenTemplateEmail
+    email_template = None
+    token_view_name = None
 
-    def get_email_kwargs(self, user):
-        return {'user': user}
+    def get_email_context_data(self, user, **kwargs):
+        token_view_name = kwargs.get('token_view_name', self.token_view_name)
+        if not token_view_name:
+            raise ImproperlyConfigured("No token_view_name defined.")
 
-    def get_email_tempalte(self, user):
-        return self.email_template_class(**self.get_email_kwargs(user))
+        site = Site.objects.get_current()
+        token = default_token_generator.make_token(user)
+        uidb36 = int_to_base36(user.id)
 
-    def send_email(self, user):
-        email_template = self.get_email_tempalte(user)
-        return email_template.send_email()
+        token_url = reverse(token_view_name, kwargs={'uidb36': uidb36, 'token': token})
+        if hasattr(self, 'request'):
+            token_url = self.request.build_absolute_uri(token_url)
+        else:
+            token_url = 'http://%s%s' % (site.domain, token_url)
+
+        return {
+            'user': user,
+            'uid': uidb36,
+            'token': token,
+            'token_url': token_url,
+            'site': site,
+        }
+
+    def send_email(self, user, **kwargs):
+        to_address = getattr(user, 'email', None)
+        if not to_address:
+            return False
+        template_name = kwargs.get('template_name', self.email_template)
+        if not template_name:
+            raise ImproperlyConfigured("No email_template defined.")
+
+        context = self.get_email_context_data(user, **kwargs)
+        return send_email_template(template_name, [to_address], 
+            context=context, 
+            attachments=kwargs.get('attachments',None),
+            headers=kwargs.get('headers',None))
 
 
 class TokenValidateMixin(object):

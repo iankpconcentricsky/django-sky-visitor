@@ -160,20 +160,13 @@ class LogoutView(RedirectView):
 class ForgotPasswordView(SendTokenEmailMixin, FormView):
     form_class = PasswordResetForm
     template_name = 'sky_visitor/forgot_password_start.html'
+    email_template = 'visitor-forgot-password'
+    token_view_name = 'reset_password'
 
     def form_valid(self, form):
         user = form.users_cache[0]
         self.send_email(user)
         return super(ForgotPasswordView, self).form_valid(form)  # Do redirect
-
-    def get_email_kwargs(self, user):
-        kwargs = super(ForgotPasswordView, self).get_email_kwargs(user)
-        domain = self.request.get_host()
-        kwargs['email_template_name'] = 'sky_visitor/forgot_password_email.html'
-        kwargs['token_view_name'] = 'forgot_password_change'
-        kwargs['domain'] = domain
-        kwargs['subject'] = "Password reset for %s" % domain
-        return kwargs
 
     def get_success_url(self):
         return reverse('forgot_password_check_email')
@@ -183,21 +176,21 @@ class ForgotPasswordCheckEmailView(TemplateView):
     template_name = 'sky_visitor/forgot_password_check_email.html'
 
 
-class ForgotPasswordChangeView(TokenValidateMixin, FormView):
+class ResetPasswordView(TokenValidateMixin, FormView):
     form_class = SetPasswordForm
-    template_name = 'sky_visitor/forgot_password_change.html'
+    template_name = 'sky_visitor/reset_password.html'
     invalid_token_message = _("Invalid reset password link. Please reset your password again.")
     auto_login_on_success = True
     success_message = _("Succesfully reset password.")
 
     def get_form_kwargs(self):
-        kwargs = super(ForgotPasswordChangeView, self).get_form_kwargs()
+        kwargs = super(ResetPasswordView, self).get_form_kwargs()
         kwargs['user'] = self.token_user  # Form expects this
         return kwargs
 
     def get_form(self, form_class):
         if self.is_token_valid:
-            return super(ForgotPasswordChangeView, self).get_form(form_class)
+            return super(ResetPasswordView, self).get_form(form_class)
         else:
             return None
 
@@ -206,7 +199,7 @@ class ForgotPasswordChangeView(TokenValidateMixin, FormView):
             form.save()
             messages.success(self.request, self.success_message, fail_silently=True)
             auto_login(self.request, self.token_user)
-        return super(ForgotPasswordChangeView, self).form_valid(form)
+        return super(ResetPasswordView, self).form_valid(form)
 
     def get_success_url(self):
         if not self.success_url:
@@ -240,6 +233,7 @@ class InvitationStartView(SendTokenEmailMixin, CreateView):
     form_class = InvitationStartForm
     template_name = 'sky_visitor/invitation_start.html'
     success_message = _("Invitation successfully delivered.")
+    email_template = 'invitation_complete'
 
     def get_user_object(self):
         """
@@ -255,15 +249,6 @@ class InvitationStartView(SendTokenEmailMixin, CreateView):
         redirect = super(InvitationStartView, self).form_valid(form)
         self.send_email(self.get_user_object())
         return redirect
-
-    def get_email_kwargs(self, user):
-        kwargs = super(InvitationStartView, self).get_email_kwargs(user)
-        domain = self.request.get_host()
-        kwargs['email_template_name'] = 'sky_visitor/invitation_email.html'
-        kwargs['token_view_name'] = 'invitation_complete'
-        kwargs['domain'] = domain
-        kwargs['subject'] = "Invitation to Create Account at %s" % domain
-        return kwargs
 
     def get_success_url(self):
         messages.success(self.request, self.success_message, fail_silently=True)

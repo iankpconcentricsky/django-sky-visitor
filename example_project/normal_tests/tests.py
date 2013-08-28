@@ -153,7 +153,7 @@ class ForgotPasswordProcessTest(SkyVisitorViewsTestCase):
     def _get_password_reset_url(self, user=None, with_host=True):
         if user is None:
             user = self.default_user
-        url = reverse('forgot_password_change', kwargs={'uidb36': int_to_base36(user.id), 'token': default_token_generator.make_token(user)})
+        url = reverse('reset_password', kwargs={'uidb36': int_to_base36(user.id), 'token': default_token_generator.make_token(user)})
         if with_host:
             url = 'http://testserver%s' % url
         return url
