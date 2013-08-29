@@ -49,9 +49,13 @@ class SendTokenEmailMixin(object):
         token = default_token_generator.make_token(user)
         uidb36 = int_to_base36(user.id)
 
+        static_url = settings.STATIC_URL
+
         token_url = reverse(token_view_name, kwargs={'uidb36': uidb36, 'token': token})
         if hasattr(self, 'request'):
             token_url = self.request.build_absolute_uri(token_url)
+            if '://' not in static_url:
+                static_url = self.request.build_absolute_uri(static_url)
         else:
             token_url = 'http://%s%s' % (site.domain, token_url)
 
@@ -61,6 +65,7 @@ class SendTokenEmailMixin(object):
             'token': token,
             'token_url': token_url,
             'site': site,
+            'static_url': static_url,
         }
 
     def send_email(self, user, **kwargs):
