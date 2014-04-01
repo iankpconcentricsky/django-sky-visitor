@@ -64,7 +64,7 @@ your users in this way, make sure you follow the message framework docs to enabl
 Tests are broken into two separate apps running under three different "modes":
 
   1. "normal user" mode (default)
-    * Uses `noramluser_tests/settings.py`
+    * Uses `normaluser_tests/settings.py`
     * Uses `django.contrib.auth.models.User` as the user model
     * Contains the base tests
   2. "custom user" mode
