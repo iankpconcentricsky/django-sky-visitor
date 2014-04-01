@@ -1,26 +1,26 @@
-A full featured authentication and user system that complements django.contib.auth.
+![Concentric Sky](https://concentricsky.com/media/uploads/images/csky_logo.jpg)
 
 
-# Features
+# Sky Visitor
+
+Sky Visitor is an open-source Django library developed by [Concentric Sky](http://concentricsky.com/). It is a full-featured authentication and user system that complements django.contib.auth.
+
+
+## Features
 
   * Class-based view implementations of all of the views
   * Invitation emailed to users, where they can complete their registration
   * Password rules
 
-## Advanced usage
+### Advanced usage
 
   * Override URLs and views to provide custom workflows
   * Customize views and URLs
   * Customize forms
   * Choose to not automatically log a user in after they compelte a registration, or password reset
 
-## Messages
-This app uses the [messages framework](https://docs.djangoproject.com/en/dev/ref/contrib/messages/) to pass success messages
-around after certain events (password reset completion, for example). If you would like to improve the experience for
-your users in this way, make sure you follow the message framework docs to enable and render these messages on your site.
 
-
-# Setup & Configuration
+## Installation
 
 Install this package using pip:
 
@@ -37,7 +37,13 @@ If you wish to use the default URLs, add them to your `urls.py` like so:
     url(r'^user/', include('sky_visitor.urls')),
 
 
-# Testing
+### Messages
+This app uses the [messages framework](https://docs.djangoproject.com/en/dev/ref/contrib/messages/) to pass success messages
+around after certain events (password reset completion, for example). If you would like to improve the experience for
+your users in this way, make sure you follow the message framework docs to enable and render these messages on your site.
+
+
+## Testing
 
 Tests are broken into two separate apps running under three different "modes":
 
@@ -60,7 +66,7 @@ You can run the tests like so:
     ./manage.py test --settings=customuser_tests.settings
 
 
-# Roadmap
+## Roadmap
 
 Features to add:
 
@@ -75,11 +81,17 @@ Improvements to documentation:
   * List all template paths that the default templates will look for
 
 
-# Contributing
+## Contributing
 Please fork this repo and send pull requests. Submit issues/questions/suggestions in the [issue queue](https://github.com/concentricsky/django-sky-visitor/issues).
 
 
-# Author
-Built at [Concentric Sky](http://www.concentricsky.com/) by [Jeremy Blanchard](http://github.com/auzigog/).
+## LICENSE
 
-This project is licensed under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0). Copyright 2013 Concentric Sky, Inc.
+This project is licensed under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0). Details can be found in the LICENSE.md file.
+
+For copyright and other important notes regarding this release please read the AUTHORS.md file.
+
+
+## About Concentric Sky
+
+_For nearly a decade, Concentric Sky has been building technology solutions that impact people everywhere. We work in the mobile, enterprise and web application spaces. Our team, based in Eugene Oregon, loves to solve complex problems. Concentric Sky believes in contributing back to our community and one of the ways we do that is by open sourcing our code on GitHub. Contact Concentric Sky at hello@concentricsky.com._
