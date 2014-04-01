@@ -81,15 +81,13 @@ Improvements to documentation:
   * List all template paths that the default templates will look for
 
 
-## Contributing
-Please fork this repo and send pull requests. Submit issues/questions/suggestions in the [issue queue](https://github.com/concentricsky/django-sky-visitor/issues).
-
-
-## LICENSE
+## License
 
 This project is licensed under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0). Details can be found in the LICENSE.md file.
 
-For copyright and other important notes regarding this release please read the AUTHORS.md file.
+### Contributing
+
+Please fork this repo and send pull requests. Submit issues/questions/suggestions in the [issue queue](https://github.com/concentricsky/django-sky-visitor/issues).
 
 
 ## About Concentric Sky
