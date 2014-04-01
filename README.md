@@ -5,8 +5,41 @@
 
 Sky Visitor is an open-source Django library developed by [Concentric Sky](http://concentricsky.com/). It is a full-featured authentication and user system that complements django.contib.auth.
 
+### Table of Contents
+- [Installation](#installation)
+- [Getting Started](#getting-started)
+- [Testing](#testing)
+- [Roadmap](#roadmap)
+- [License](#license)
+- [About Concentric Sky](#about-concentric-sky)
 
-## Features
+
+## Installation
+
+Install this package using pip:
+
+    pip install git+https://github.com/concentricsky/django-sky-visitor.git@v1.0.1
+
+Add `'sky_visitor'` to your `INSTALLED_APPS` array.
+
+    INSTALLED_APPS = [
+        ...
+        'sky_visitor',
+        ...
+    ]
+
+You must specify `SECRET_KEY` in your settings for any emails with tokens to be secure (example: invitation, confirm email address, forgot password, etc)
+
+You must at least set `LOGIN_URL` to `"login"`. You can optionally specify another valid URL or URL name of your own. Certain views in Sky Visitor depend on an accurate value for this setting and the default value in Django core (`"/authentication/login/"`) is likely invalid unless you have created it.
+
+
+## Getting Started
+
+If you wish to use the default URLs, add them to your `urls.py` like so:
+
+    url(r'^user/', include('sky_visitor.urls')),
+
+### Basic Features
 
   * Class-based view implementations of all of the views
   * Invitation emailed to users, where they can complete their registration
@@ -19,25 +52,8 @@ Sky Visitor is an open-source Django library developed by [Concentric Sky](http:
   * Customize forms
   * Choose to not automatically log a user in after they compelte a registration, or password reset
 
-
-## Installation
-
-Install this package using pip:
-
-    pip install git+https://github.com/concentricsky/django-sky-visitor.git@v1.0.1
-
-Add `'sky_visitor'` to your `INSTALLED_APPS` array.
-
-You must specify `SECRET_KEY` in your settings for any emails with tokens to be secure (example: invitation, confirm email address, forgot password, etc)
-
-You must at least set `LOGIN_URL` to `"login"`. You can optionally specify another valid URL or URL name of your own. Certain views in Sky Visitor depend on an accurate value for this setting and the default value in Django core (`"/authentication/login/"`) is likely invalid unless you have created it.
-
-If you wish to use the default URLs, add them to your `urls.py` like so:
-
-    url(r'^user/', include('sky_visitor.urls')),
-
-
 ### Messages
+
 This app uses the [messages framework](https://docs.djangoproject.com/en/dev/ref/contrib/messages/) to pass success messages
 around after certain events (password reset completion, for example). If you would like to improve the experience for
 your users in this way, make sure you follow the message framework docs to enable and render these messages on your site.
