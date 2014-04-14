@@ -45,7 +45,7 @@ If you wish to use the default URLs, add them to your `urls.py` like so:
   * Invitation emailed to users, where they can complete their registration
   * Password rules
 
-### Advanced usage
+### Advanced Usage
 
   * Override URLs and views to provide custom workflows
   * Customize views and URLs
