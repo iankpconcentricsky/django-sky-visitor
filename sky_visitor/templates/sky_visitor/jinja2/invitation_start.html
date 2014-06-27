@@ -5,7 +5,7 @@
     <h1>Invitation Start</h1>
 
     <form method="post">
-        {{ form.as_p() }}
+        {{ form.as_p()|safe }}
         {{ csrf() }}
         <button type="submit">Submit</button>
     </form>
