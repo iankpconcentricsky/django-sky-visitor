@@ -167,6 +167,7 @@ class ForgotPasswordView(SendTokenEmailMixin, FormView):
     def form_valid(self, form):
         # Copied behavior from django.contrib.auth.forms.PasswordResetForm
         UserModel = get_user_model()
+        email = self.cleaned_data["email"]
         active_users = UserModel._default_manager.filter(
             email__iexact=email, is_active=True)
         for user in active_users:
