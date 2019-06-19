@@ -18,7 +18,7 @@ Sky Visitor is an open-source Django library developed by [Concentric Sky](http:
 
 Install this package using pip:
 
-    pip install git+https://github.com/concentricsky/django-sky-visitor.git@v1.0.1
+    pip install git+https://github.com/concentricsky/django-sky-visitor.git@v2.0.0
 
 Add `'sky_visitor'` to your `INSTALLED_APPS` array.
 

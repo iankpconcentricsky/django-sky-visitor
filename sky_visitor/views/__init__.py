@@ -85,7 +85,7 @@ class LoginView(FormView):
         """
         This will default to the "next" field if available, unless success_url_overrides_redirect_field is True, then it will default to that.
         """
-        redirect_to = self.request.REQUEST.get(self.redirect_field_name, '')
+        redirect_to = self.request.GET.get(self.redirect_field_name, '')
 
         # Ensure the user-originating redirection url is safe.
         if not is_safe_url(url=redirect_to, host=self.request.get_host()):
@@ -149,8 +149,8 @@ class LogoutView(RedirectView):
 
         redirect_to = reverse('login')
 
-        if self.redirect_field_name in self.request.REQUEST:
-            redirect_to = self.request.REQUEST[self.redirect_field_name]
+        if self.redirect_field_name in self.request.GET:
+            redirect_to = self.request.GET[self.redirect_field_name]
             # Security check -- don't allow redirection to a different host.
             if not is_safe_url(url=redirect_to, host=self.request.get_host()):
                 redirect_to = self.request.path
